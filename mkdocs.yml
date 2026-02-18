@@ -1,0 +1,46 @@
+site_name: cortex-net
+site_description: Trainable meta-architecture for intelligent agents
+site_url: https://rezabaram.github.io/cortex-net
+repo_url: https://github.com/rezabaram/cortex-net
+repo_name: rezabaram/cortex-net
+
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Light mode
+    - scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Dark mode
+  features:
+    - navigation.sections
+    - navigation.expand
+    - toc.integrate
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Vision: vision.md
+  - Architecture: architecture.md
+  - Why This Matters: why.md
+  - Implementation Plan: implementation.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html

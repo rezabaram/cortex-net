@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cortex-net"
+version = "0.1.0"
+description = "Trainable meta-architecture for intelligent agents"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{ name = "Reza Baram" }]
+
+dependencies = [
+    "torch>=2.0",
+    "sentence-transformers>=2.2",
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+docs = ["mkdocs-material>=9.0"]
+dev = ["pytest>=7.0", "ruff>=0.1"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cortex_net"]
