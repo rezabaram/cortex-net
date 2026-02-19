@@ -35,6 +35,7 @@ from cortex_net.online_trainer import OnlineTrainer
 from cortex_net.situation_encoder import SituationEncoder, extract_metadata_features
 from cortex_net.state_manager import StateManager
 from cortex_net.strategy_selector import StrategySelector, StrategyRegistry
+from cortex_net.tools import ToolRegistry, create_default_tools
 
 
 @dataclass
@@ -70,6 +71,11 @@ class AgentConfig:
 
     # State
     state_dir: str = "./state"
+
+    # Tools
+    tools_enabled: bool = False
+    tools_workdir: str = "."
+    max_tool_rounds: int = 10  # max tool call rounds per chat()
 
     # System prompt base
     system_prompt: str = (
@@ -206,6 +212,11 @@ class CortexAgent:
             update_every=self.config.update_every,
         ) if self.config.online_learning else None
 
+        # Tools
+        self.tool_registry: ToolRegistry | None = None
+        if self.config.tools_enabled:
+            self.tool_registry = create_default_tools(workdir=self.config.tools_workdir)
+
         # Conversation state
         self.history: list[ConversationTurn] = []
         self._last_situation_emb: torch.Tensor | None = None
@@ -332,14 +343,46 @@ class CortexAgent:
             messages.append({"role": turn.role, "content": turn.content})
         messages.append({"role": "user", "content": message})
 
-        # Step 8: Call LLM (OpenAI-compatible)
+        # Step 8: Call LLM with tool loop
         all_messages = [{"role": "system", "content": system_prompt}] + messages
-        response = self.client.chat.completions.create(
-            model=self.config.model,
-            max_tokens=self.config.max_tokens,
-            messages=all_messages,
-        )
-        assistant_text = response.choices[0].message.content
+
+        call_kwargs = {
+            "model": self.config.model,
+            "max_tokens": self.config.max_tokens,
+            "messages": all_messages,
+        }
+        if self.tool_registry:
+            call_kwargs["tools"] = self.tool_registry.to_openai_tools()
+
+        assistant_text = ""
+        for _round in range(self.config.max_tool_rounds):
+            response = self.client.chat.completions.create(**call_kwargs)
+            choice = response.choices[0]
+
+            # If no tool calls, we're done
+            if not choice.message.tool_calls:
+                assistant_text = choice.message.content or ""
+                break
+
+            # Process tool calls
+            all_messages.append(choice.message)
+            for tc in choice.message.tool_calls:
+                try:
+                    args = json.loads(tc.function.arguments)
+                except json.JSONDecodeError:
+                    args = {}
+                result = self.tool_registry.execute(tc.function.name, args)
+                all_messages.append({
+                    "role": "tool",
+                    "tool_call_id": tc.id,
+                    "content": result[:4000],  # cap tool output
+                })
+
+            # Update kwargs for next round
+            call_kwargs["messages"] = all_messages
+        else:
+            # Hit max rounds — get whatever the last response was
+            assistant_text = choice.message.content or "(max tool rounds reached)"
 
         # Step 9: Update conversation history
         self.history.append(ConversationTurn(role="user", content=message, timestamp=time.time()))

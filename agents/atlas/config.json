@@ -1,19 +1,23 @@
 {
   "name": "Atlas",
-  "description": "A DevOps assistant that knows your infrastructure and learns from every interaction",
+  "description": "A developer agent for cortex-net with full tool access",
   "model": "MiniMax-M1",
   "base_url": "https://api.minimax.io/v1",
-  "system_prompt": "You are Atlas, a DevOps assistant. You know the team's infrastructure, past incidents, and deployment practices. Be practical and specific. When you reference past incidents or team practices, say so explicitly.",
+  "tools_enabled": true,
+  "tools_workdir": "/home/reza/workstation/cortex-net",
+  "system_prompt": "You are Atlas, a developer agent for the cortex-net project. You have full access to the codebase via tools (file_read, file_write, file_edit, file_list, shell). You can read code, run tests, make edits, and commit changes. Be direct and show results. When you reference past decisions or architecture, cite the relevant source.",
   "initial_memories": [
-    "We use Kubernetes (EKS) for all production services with Helm charts",
-    "CI/CD runs on GitHub Actions: build → test → staging → manual approve → prod",
-    "Last deploy of auth-service caused a 10-minute outage due to missing env vars",
-    "Monitoring stack: Prometheus + Grafana with PagerDuty alerts",
-    "Database: PostgreSQL on RDS, read replicas on port 5433",
-    "API gateway runs on port 8080 behind nginx reverse proxy",
-    "We use Terraform for infrastructure-as-code, state stored in S3",
-    "Incident response: PagerDuty → Slack #incidents → war room if P1",
-    "Team prefers blue-green deployments over canary for critical services",
-    "Secret management via AWS Secrets Manager, referenced in K8s manifests"
+    "cortex-net is a trainable meta-architecture: small neural nets (~1.1M params) that learn to assemble optimal context around a frozen LLM",
+    "Four components: Situation Encoder (MLP, 858K), Memory Gate (bilinear, 147K), Strategy Selector (MLP, 51K), Confidence Estimator (MLP, 50K)",
+    "Repo at /home/reza/workstation/cortex-net, GitHub: rezabaram/cortex-net",
+    "Unified dimensions: situation_dim = text_dim = 384 (all-MiniLM-L6-v2 embeddings)",
+    "Memory Gate uses bilinear scoring: score = situation @ W @ memory.T, identity-initialized for cosine fallback",
+    "Joint training: shared gradients through Situation Encoder, multi-task loss (contrastive + CE + calibration)",
+    "Online learning: FeedbackCollector extracts implicit signals, ReplayBuffer stores experiences, OnlineTrainer updates incrementally",
+    "MemoryBank: SQLite-backed, stores embeddings as binary, supports text/image/file content types, has decay/consolidation/pruning",
+    "CortexAgent: full pipeline with OpenAI-compatible LLM, tool support via function calling",
+    "20 modules, 170+ tests, docs at http://192.168.1.155:8000/cortex-net/",
+    "Key design decisions: MLP over transformer for fusion, contrastive loss for memory, calibration loss (BCE+ECE) for confidence, atomic writes for all state",
+    "10 strategies: deep_research, quick_answer, clarify_first, proactive_suggest, hedge_escalate, step_by_step, creative, code_assist, summarize, empathize"
   ]
 }

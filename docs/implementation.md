@@ -233,8 +233,11 @@ Gate wins where cosine fails: distractor rejection, past failure recall, user pr
 - [x] mkdocs served via systemd (auto-restart)
 
 ### Remaining
-- [ ] Live agent integration (wire into a real agent loop)
-- [ ] Extended ablation with real text encodings (current uses synthetic for some)
+- [ ] **Learned Memorization** — classifier that decides what to store and at what importance (trained from feedback signals). Critical at 1,000+ memories.
+- [ ] **Memory Extraction** — auto-summarize long exchanges into concise memories
+- [ ] **Adaptive Consolidation** — learn optimal similarity thresholds and trigger timing
+- [ ] Extended ablation with real text encodings
+- [ ] Long-running validation (does online learning improve over 100s of interactions?)
 
 **Exit criteria:** cortex-net agent demonstrably outperforms baseline on key metrics, with clear evidence of improvement over time (learning curve).
 
