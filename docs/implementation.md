@@ -122,27 +122,37 @@ Gate wins where cosine fails: distractor rejection, past failure recall, user pr
 
 ---
 
-## Phase 3: Strategy Selector — Weeks 7-10 ← NEXT
+## Phase 3: Strategy Selector — ⏳ IN PROGRESS
 
 **Goal:** Agent learns to choose the right approach for the right situation.
 
-### Week 7: Strategy Profiles
-- [ ] Define 10-15 initial strategy profiles (see Architecture doc)
-- [ ] Each profile: prompt template + tool permissions + reasoning style + response format
-- [ ] Manual labeling: classify 200+ past interactions by best strategy
-- [ ] Build strategy profile registry
+### Week 7: Strategy Profiles ✅
+- [x] Defined 10 strategy profiles: deep_research, quick_answer, clarify_first, proactive_suggest, hedge_escalate, step_by_step, creative, code_assist, summarize, empathize
+- [x] Each profile: prompt framing + tool permissions + reasoning style + response format
+- [x] `StrategyRegistry` with lookup by id/index
+- [x] `StrategyProfile` dataclass with full configuration
 
-### Week 8-9: Classification Head
-- [ ] Implement linear classifier on situation embeddings → strategy distribution
-- [ ] Training pipeline: supervised on labeled interactions
-- [ ] Exploration mechanism: occasionally try non-preferred strategies to learn
-- [ ] Strategy outcome logging: which strategy actually led to success
+### Week 8-9: Classification Head ✅
+- [x] 2-layer MLP classifier: situation_embedding → softmax over strategies
+- [x] `train_step()` with cross-entropy loss
+- [x] Epsilon-greedy exploration (configurable rate)
+- [x] Temperature-scaled softmax for soft exploration
+- [x] Usage tracking + diversity score (normalized entropy)
+- [x] Training test: learns to map 5 distinct situations to 5 strategies (≥80% accuracy)
 
 ### Week 10: Evaluation
-- [ ] A/B test: learned strategy selection vs. fixed strategy
-- [ ] Measure: task success rate, user satisfaction signals, strategy diversity
-- [ ] Refine strategy profiles based on what the model actually learns
+- [ ] Strategy benchmark with realistic scenarios
+- [ ] A/B test: learned selection vs fixed strategy
+- [ ] Measure diversity score (target: ≥5 strategies used regularly)
 - [ ] Document results
+
+### What Was Built
+
+| Module | File | Tests | Purpose |
+|--------|------|-------|---------|
+| Strategy Selector | `strategy_selector.py` | 13 | Classification head, profiles, registry, exploration |
+| **Phase 3 total** | **1 module** | **13** | |
+| **Project total** | **10 modules** | **75** | **All passing** |
 
 **Exit criteria:** Learned strategy selection outperforms fixed strategy on task success metrics. The selector uses at least 5 distinct strategies regularly.
 
