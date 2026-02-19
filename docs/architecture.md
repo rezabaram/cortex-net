@@ -267,5 +267,7 @@ src/cortex_net/
 ├── benchmark.py              # Phase 1: memory gate real-text scenarios
 ├── situation_benchmark.py    # Phase 2: contextual retrieval scenarios
 ├── strategy_benchmark.py     # Phase 3: strategy evaluation scenarios
-└── comparison_benchmark.py   # Full system vs cosine RAG vs no-memory
+├── comparison_benchmark.py   # Full system vs cosine RAG vs no-memory
+├── tools.py                  # Tool registry + built-in tools (file, shell)
+└── agent.py                  # Live agent: cortex-net + LLM + tools
 ```
