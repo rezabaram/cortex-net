@@ -147,6 +147,26 @@ SUBTOPICS = {
 }
 
 
+# Out-of-domain messages — things with NO relation to any topic above
+OUT_OF_DOMAIN = [
+    "What's a good recipe for chocolate cake?",
+    "Can you recommend a movie for tonight?",
+    "What's the capital of Mongolia?",
+    "Tell me a joke about penguins.",
+    "How do I fix a leaky faucet?",
+    "What's the meaning of life?",
+    "Write me a haiku about rain.",
+    "Who won the World Cup in 2022?",
+    "What's the best way to learn piano?",
+    "How far is the moon from Earth?",
+    "Recommend a good book about history.",
+    "What's the weather like in Tokyo?",
+    "How do you make sourdough bread?",
+    "Explain quantum entanglement simply.",
+    "What's a good workout routine for beginners?",
+]
+
+
 def generate_scenario() -> tuple[str, list[str], list[int]]:
     """Generate a conversation scenario with relevance labels.
     
@@ -160,7 +180,8 @@ def generate_scenario() -> tuple[str, list[str], list[int]]:
     topics = list(all_pools.keys())
     scenario_type = random.choice([
         "new_task", "followup", "reference_old", "mixed",
-        "subtopic_switch",  # same domain, different subtopic
+        "subtopic_switch",
+        "nothing_relevant", "nothing_relevant", "nothing_relevant",  # 3x weight — hardest case
     ])
     
     if scenario_type == "new_task":
@@ -204,14 +225,11 @@ def generate_scenario() -> tuple[str, list[str], list[int]]:
     
     elif scenario_type == "subtopic_switch":
         # Same broad domain but different subtopic
-        # Pick two subtopics from same domain (e.g., memory_gate_debug vs memory_gate_training)
         subtopic_keys = list(SUBTOPICS.keys())
-        # Group by domain prefix
         domains = {}
         for k in subtopic_keys:
             prefix = k.rsplit("_", 1)[0]
             domains.setdefault(prefix, []).append(k)
-        # Pick a domain with 2+ subtopics
         multi_domains = {k: v for k, v in domains.items() if len(v) >= 2}
         if multi_domains:
             domain = random.choice(list(multi_domains.keys()))
@@ -220,8 +238,20 @@ def generate_scenario() -> tuple[str, list[str], list[int]]:
             st_a, st_b = random.sample(subtopic_keys, 2)
         history = random.sample(SUBTOPICS[st_a], min(4, len(SUBTOPICS[st_a])))
         current_message = random.choice(SUBTOPICS[st_b])
-        # Different subtopic — history is NOT relevant even though same domain
         relevant_indices = []
+    
+    elif scenario_type == "nothing_relevant":
+        # Out-of-domain query after technical conversation — NOTHING is relevant
+        # Mix multiple technical topics in history for realism
+        n_topics = random.randint(1, 3)
+        selected_topics = random.sample(topics, min(n_topics, len(topics)))
+        history = []
+        for t in selected_topics:
+            history.extend(random.sample(all_pools[t], min(3, len(all_pools[t]))))
+        random.shuffle(history)
+        history = history[:random.randint(4, 8)]
+        current_message = random.choice(OUT_OF_DOMAIN)
+        relevant_indices = []  # nothing in history is relevant
     
     return current_message, history, relevant_indices
 

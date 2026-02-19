@@ -411,8 +411,8 @@ class CortexAgent:
                 situation=situation,
                 turn_embeddings=turn_embs,
                 messages=[{"role": t.role, "content": t.content} for t in history_window],
-                min_turns=1,
-                max_turns=len(history_window),  # no cap — trust the gate's threshold
+                min_turns=0,  # gate can select nothing if nothing is relevant
+                max_turns=len(history_window),
             )
             messages = ctx.messages
             # Log conversation gate stats

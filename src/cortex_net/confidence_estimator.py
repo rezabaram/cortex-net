@@ -178,6 +178,7 @@ class ConfidenceEstimator(nn.Module):
 
         x = torch.cat([situation, context_summary], dim=-1)
         conf = self.estimator(x).squeeze(-1)
+        conf = conf.clamp(0.01, 0.99)  # sigmoid clipping — prevents extreme collapse
 
         if squeeze:
             conf = conf.squeeze(0)
