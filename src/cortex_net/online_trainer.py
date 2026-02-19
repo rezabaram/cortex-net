@@ -73,7 +73,9 @@ class OnlineTrainer:
         gate: MemoryGate,
         selector: StrategySelector,
         estimator: ConfidenceEstimator,
-        registry: StrategyRegistry,
+        registry: StrategyRegistry = None,
+        *,
+        conversation_gate=None,
         buffer: ReplayBuffer | None = None,
         lr: float = 1e-4,
         batch_size: int = 16,
@@ -87,7 +89,8 @@ class OnlineTrainer:
         self.gate = gate
         self.selector = selector
         self.estimator = estimator
-        self.registry = registry
+        self.conversation_gate = conversation_gate
+        self.registry = registry or StrategyRegistry()
         self.buffer = buffer or ReplayBuffer()
 
         self.batch_size = batch_size
@@ -101,7 +104,8 @@ class OnlineTrainer:
             list(encoder.parameters())
             + list(gate.parameters())
             + list(selector.parameters())
-            + list(estimator.parameters()),
+            + list(estimator.parameters())
+            + (list(conversation_gate.parameters()) if conversation_gate else []),
             lr=lr,
         )
 

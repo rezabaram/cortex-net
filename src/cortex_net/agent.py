@@ -32,6 +32,7 @@ from cortex_net.feedback_collector import ReplayBuffer, extract_feedback, Intera
 from cortex_net.memory_bank import MemoryBank
 from cortex_net.memory_gate import MemoryGate
 from cortex_net.online_trainer import OnlineTrainer
+from cortex_net.conversation_gate import ConversationGate
 from cortex_net.situation_encoder import SituationEncoder, extract_metadata_features
 from cortex_net.state_manager import StateManager
 from cortex_net.strategy_selector import StrategySelector, StrategyRegistry
@@ -202,6 +203,7 @@ class CortexAgent:
         self.estimator = ConfidenceEstimator(
             situation_dim=dim, hidden_dim=64, dropout=0.1
         ).to(self.device)
+        self.conversation_gate = ConversationGate(dim=dim).to(self.device)
 
         # State management
         state_dir = Path(self.config.state_dir)
@@ -220,6 +222,7 @@ class CortexAgent:
         )
         self.online_trainer = OnlineTrainer(
             self.encoder, self.gate, self.selector, self.estimator, self.registry,
+            conversation_gate=self.conversation_gate,
             buffer=replay_buf,
             update_every=self.config.update_every,
         ) if self.config.online_learning else None
@@ -381,10 +384,34 @@ class CortexAgent:
 
         system_prompt = "\n".join(system_parts)
 
-        # Step 7: Build messages (conversation history + current)
-        messages = []
-        for turn in self.history[-4:]:  # last 2 exchanges (test: does shorter context improve task-following?)
-            messages.append({"role": turn.role, "content": turn.content})
+        # Step 7: Build messages — Conversation Gate selects relevant history
+        history_window = self.history[-20:]  # candidate pool
+        if history_window and situation is not None:
+            # Embed each history turn
+            turn_texts = [t.content for t in history_window]
+            turn_embs = self.text_encoder.encode(turn_texts, convert_to_tensor=True)
+            if turn_embs.device != self.device:
+                turn_embs = turn_embs.to(self.device)
+
+            # Gate selects relevant turns
+            ctx = self.conversation_gate.select_turns(
+                situation=situation,
+                turn_embeddings=turn_embs,
+                messages=[{"role": t.role, "content": t.content} for t in history_window],
+                min_turns=2,
+                max_turns=10,
+            )
+            messages = ctx.messages
+            # Log conversation gate stats via monitor one-liner
+            import logging
+            logging.getLogger("cortex-agent").info(
+                f"ConvGate: {len(ctx.selected_indices)}/{len(history_window)} turns selected, "
+                f"scores={[round(s, 3) for s in ctx.scores]}"
+            )
+        else:
+            # Fallback: last 4 turns
+            messages = [{"role": t.role, "content": t.content} for t in history_window[-4:]]
+
         messages.append({"role": "user", "content": message})
 
         # Step 8: Call LLM with tool loop
@@ -524,6 +551,7 @@ class CortexAgent:
             ("memory_gate", self.gate),
             ("strategy_selector", self.selector),
             ("confidence_estimator", self.estimator),
+            ("conversation_gate", self.conversation_gate),
         ]:
             path = state_dir / f"{name}.pt"
             tmp = path.with_suffix(".tmp")
@@ -549,6 +577,7 @@ class CortexAgent:
             ("memory_gate", self.gate),
             ("strategy_selector", self.selector),
             ("confidence_estimator", self.estimator),
+            ("conversation_gate", self.conversation_gate),
         ]:
             path = state_dir / f"{name}.pt"
             if path.exists():
