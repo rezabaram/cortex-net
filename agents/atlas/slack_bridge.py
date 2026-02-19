@@ -159,6 +159,9 @@ def run():
                 # Get response from Atlas
                 try:
                     response = agent.chat(text)
+                    # Strip <think>...</think> tags from reasoning models
+                    import re
+                    response = re.sub(r'<think>.*?</think>\s*', '', response, flags=re.DOTALL).strip()
                     post_message(CHANNEL_ID, response, thread_ts=ts)
                     log.info(f"Responded ({len(response)} chars)")
                 except Exception as e:

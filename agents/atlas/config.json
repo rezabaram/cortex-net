@@ -1,7 +1,7 @@
 {
   "name": "Atlas",
   "description": "A developer agent for cortex-net with full tool access",
-  "model": "MiniMax-M1",
+  "model": "MiniMax-M2.5",
   "base_url": "https://api.minimax.io/v1",
   "tools_enabled": true,
   "tools_workdir": "/home/reza/workstation/cortex-net",
