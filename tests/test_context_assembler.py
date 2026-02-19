@@ -11,7 +11,6 @@ def assembler(tmp_path_factory):
     state_dir = tmp_path_factory.mktemp("state")
     return ContextAssembler(
         text_dim=384,
-        situation_dim=128,
         num_strategies=10,
         state_dir=state_dir,
         device="cpu",
@@ -69,12 +68,12 @@ class TestAssembly:
 class TestStatePersistence:
     def test_save_and_load(self, assembler, tmp_path):
         assembler2 = ContextAssembler(
-            text_dim=384, situation_dim=128, state_dir=tmp_path / "state2",
+            text_dim=384, state_dir=tmp_path / "state2",
         )
         assembler2.save()
 
         assembler3 = ContextAssembler(
-            text_dim=384, situation_dim=128, state_dir=tmp_path / "state2",
+            text_dim=384, state_dir=tmp_path / "state2",
         )
         loaded = assembler3.load()
         assert loaded

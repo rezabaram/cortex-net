@@ -102,7 +102,6 @@ class ContextAssembler:
     def __init__(
         self,
         text_dim: int = 384,
-        situation_dim: int = 256,
         num_strategies: int = 10,
         state_dir: str | Path = "./state",
         embedding_model: str = "all-MiniLM-L6-v2",
@@ -110,26 +109,28 @@ class ContextAssembler:
     ) -> None:
         self.device = torch.device(device)
         self.text_dim = text_dim
-        self.situation_dim = situation_dim
+        # Situation dim matches text dim — keeps cosine fallback working,
+        # allows identity init for bilinear W, simplifies everything.
+        self.situation_dim = text_dim
 
         # Text encoder (frozen)
         self.text_encoder = SentenceTransformer(embedding_model, device=device)
 
         # Trainable components
         self.situation_encoder = SituationEncoder(
-            text_dim=text_dim, output_dim=situation_dim,
+            text_dim=text_dim, output_dim=text_dim,
         ).to(self.device)
 
         self.memory_gate = MemoryGate(
-            situation_dim=situation_dim, memory_dim=text_dim,
+            situation_dim=text_dim, memory_dim=text_dim,
         ).to(self.device)
 
         self.strategy_selector = StrategySelector(
-            situation_dim=situation_dim, num_strategies=num_strategies,
+            situation_dim=text_dim, num_strategies=num_strategies,
         ).to(self.device)
 
         self.confidence_estimator = ConfidenceEstimator(
-            situation_dim=situation_dim,
+            situation_dim=text_dim,
         ).to(self.device)
 
         self.strategy_registry = StrategyRegistry()

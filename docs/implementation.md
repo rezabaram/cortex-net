@@ -140,11 +140,12 @@ Gate wins where cosine fails: distractor rejection, past failure recall, user pr
 - [x] Usage tracking + diversity score (normalized entropy)
 - [x] Training test: learns to map 5 distinct situations to 5 strategies (≥80% accuracy)
 
-### Week 10: Evaluation
-- [ ] Strategy benchmark with realistic scenarios
-- [ ] A/B test: learned selection vs fixed strategy
-- [ ] Measure diversity score (target: ≥5 strategies used regularly)
-- [ ] Document results
+### Week 10: Evaluation ✅
+- [x] 10 labeled scenarios covering all strategy profiles
+- [x] `train_strategy_selector()`: joint encoder+selector training
+- [x] Learned selection beats fixed baseline (20% vs 10% with random embs)
+- [x] Uses ≥5 distinct strategies
+- [x] Diversity score tracked via normalized entropy
 
 ### What Was Built
 
@@ -189,7 +190,8 @@ Gate wins where cosine fails: distractor rejection, past failure recall, user pr
 - [x] Full pipeline: query → Situation Encoder → Memory Gate + Strategy Selector + Confidence Estimator → AssembledContext
 - [x] `AssembledContext.prompt_prefix`: generates LLM prompt with memories + strategy framing + confidence caveats
 - [x] Save/load for all four components via StateManager
-- [x] Parameter count: **811K total** (~0.8M, well under 10M target)
+- [x] Parameter count: **1.1M total** (well under 10M target)
+- [x] Unified dimensions: situation_dim = text_dim = 384 (simplifies cosine fallback, identity init)
 
 ### What Was Built (All Phases)
 
@@ -205,9 +207,10 @@ Gate wins where cosine fails: distractor rejection, past failure recall, user pr
 | Situation Encoder | `situation_encoder.py` | 15 | MLP fusion, metadata-aware |
 | Situation Benchmark | `situation_benchmark.py` | 2 | Contextual scenarios |
 | Strategy Selector | `strategy_selector.py` | 13 | Classification head, 10 profiles |
+| Strategy Benchmark | `strategy_benchmark.py` | 2 | Labeled scenarios, eval vs fixed |
 | Confidence Estimator | `confidence_estimator.py` | 13 | Calibrated confidence, ECE |
 | Context Assembler | `context_assembler.py` | 6 | Full pipeline orchestration |
-| **Total** | **12 modules** | **94** | **All passing** |
+| **Total** | **13 modules** | **96** | **All passing** |
 
 ### Remaining
 - [ ] End-to-end joint training pipeline (shared gradients)

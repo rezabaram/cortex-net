@@ -27,7 +27,7 @@ The LLM remains frozen. It does what it's good at: reasoning, generation, tool u
 - Recent conversation history
 - Metadata: time of day, channel, user identity, task type, conversation length
 
-**Output:** A situation embedding vector (e.g., 256-dim)
+**Output:** A situation embedding vector (same dimension as text embeddings, e.g., 384-dim). Using the same dimension as the memory embeddings keeps cosine fallback working and allows identity initialization of the Memory Gate's bilinear matrix.
 
 **Why it matters:** Every other component needs a shared understanding of the current situation. The Situation Encoder provides this as a learned representation, not a hand-crafted feature vector.
 
