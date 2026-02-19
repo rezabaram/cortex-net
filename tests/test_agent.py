@@ -4,7 +4,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 from pathlib import Path
 
-from cortex_net.agent import CortexAgent, AgentConfig, MemoryStore
+from cortex_net.agent import CortexAgent, AgentConfig
 
 
 @pytest.fixture
@@ -43,7 +43,7 @@ class TestAgent:
             "We use Kubernetes for deployments",
             "Last deploy caused an outage",
         ])
-        assert len(agent.memory_store) == 2
+        assert len(agent.memory_bank) == 2
 
     def test_memories_used_in_prompt(self, agent, mock_openai):
         agent.add_memories(["We use Kubernetes for deployments"])
@@ -82,7 +82,7 @@ class TestAgent:
 
         # Load in new agent
         agent2 = CortexAgent(config=config, api_key="test-key")
-        assert len(agent2.memory_store) >= 1  # at least the seeded memory persists
+        assert len(agent2.memory_bank) >= 1  # at least the seeded memory persists
         assert len(agent2.history) == 2
 
     def test_stats(self, agent):
@@ -98,27 +98,17 @@ class TestAgent:
         mock_response.choices = [MagicMock(message=MagicMock(content="Here's a detailed explanation " * 10))]
         mock_openai.return_value.chat.completions.create.return_value = mock_response
 
-        initial = len(agent.memory_store)
+        initial = len(agent.memory_bank)
         # Long message triggers user-side memorization, long response triggers assistant-side
         agent.chat("Can you explain the entire deployment process including CI/CD, staging, and production rollout?")
-        assert len(agent.memory_store) > initial
+        assert len(agent.memory_bank) > initial
 
 
-class TestMemoryStore:
-    def test_add_and_retrieve(self, tmp_path):
-        from sentence_transformers import SentenceTransformer
-        enc = SentenceTransformer("all-MiniLM-L6-v2")
-        store = MemoryStore(tmp_path / "mem.json", enc)
-        store.add("Test memory")
-        assert len(store) == 1
-        assert store.get_texts([0]) == ["Test memory"]
-
-    def test_persistence(self, tmp_path):
-        from sentence_transformers import SentenceTransformer
-        enc = SentenceTransformer("all-MiniLM-L6-v2")
-        store1 = MemoryStore(tmp_path / "mem.json", enc)
-        store1.add("Persistent memory")
-
-        store2 = MemoryStore(tmp_path / "mem.json", enc)
-        assert len(store2) == 1
-        assert store2.get_texts([0]) == ["Persistent memory"]
+class TestMemoryBankIntegration:
+    def test_agent_uses_memory_bank(self, agent, mock_openai):
+        """Agent should use MemoryBank (SQLite) not old MemoryStore."""
+        agent.add_memories(["K8s deployment info"])
+        assert hasattr(agent, 'memory_bank')
+        assert len(agent.memory_bank) == 1
+        stats = agent.memory_bank.stats()
+        assert stats["sources"]["seeded"] == 1

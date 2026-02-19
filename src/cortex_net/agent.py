@@ -29,6 +29,7 @@ from sentence_transformers import SentenceTransformer
 
 from cortex_net.confidence_estimator import ConfidenceEstimator, ContextSummary
 from cortex_net.feedback_collector import ReplayBuffer, extract_feedback, InteractionOutcome
+from cortex_net.memory_bank import MemoryBank
 from cortex_net.memory_gate import MemoryGate
 from cortex_net.online_trainer import OnlineTrainer
 from cortex_net.situation_encoder import SituationEncoder, extract_metadata_features
@@ -188,11 +189,10 @@ class CortexAgent:
         state_dir = Path(self.config.state_dir)
         self.state_mgr = StateManager(state_dir)
 
-        # Memory store
-        self.memory_store = MemoryStore(
-            path=state_dir / "memories.json",
-            text_encoder=self.text_encoder,
-            device=self.device,
+        # Memory bank (SQLite-backed, extensible)
+        self.memory_bank = MemoryBank(
+            db_path=state_dir / "memory.db",
+            blob_dir=state_dir / "blobs",
         )
 
         # Online trainer
@@ -273,19 +273,18 @@ class CortexAgent:
         with torch.no_grad():
             situation = self.encoder(msg_emb, hist_emb, meta_tensor)
 
-        # Step 3: Memory retrieval
+        # Step 3: Memory retrieval via MemoryBank
         selected_memories = []
         memory_indices = []
         memory_scores = []
 
-        mem_embs = self.memory_store.get_all_embeddings()
-        if mem_embs is not None and len(self.memory_store) > 0:
-            k = min(self.config.retrieval_k, len(self.memory_store))
-            with torch.no_grad():
-                idx, scores = self.gate.select_top_k(situation, mem_embs, k=k)
-            memory_indices = idx.tolist() if hasattr(idx, 'tolist') else list(idx)
-            memory_scores = scores.tolist() if hasattr(scores, 'tolist') else list(scores)
-            selected_memories = self.memory_store.get_texts(memory_indices)
+        if len(self.memory_bank) > 0:
+            results = self.memory_bank.retrieve(
+                situation, k=self.config.retrieval_k, gate=self.gate
+            )
+            selected_memories = [r.memory.text for r in results]
+            memory_indices = list(range(len(results)))
+            memory_scores = [r.score for r in results]
 
         # Step 4: Strategy selection
         with torch.no_grad():
@@ -355,9 +354,14 @@ class CortexAgent:
 
         # Step 11: Auto-memorize important exchanges (simple heuristic)
         if len(message) > 50:  # non-trivial messages become memories
-            self.memory_store.add(f"User asked: {message[:200]}")
+            emb = self.text_encoder.encode(message[:200], convert_to_tensor=True)
+            self.memory_bank.add_text(
+                f"User asked: {message[:200]}", emb, source="user", importance=0.5
+            )
         if len(assistant_text) > 100:
-            self.memory_store.add(f"I responded about: {message[:100]} → {assistant_text[:200]}")
+            summary = f"I responded about: {message[:100]} → {assistant_text[:200]}"
+            emb = self.text_encoder.encode(summary, convert_to_tensor=True)
+            self.memory_bank.add_text(summary, emb, source="assistant", importance=0.4)
 
         # Save state periodically
         if len(self.history) % 10 == 0:
@@ -367,7 +371,9 @@ class CortexAgent:
 
     def add_memories(self, memories: list[str]) -> None:
         """Seed the agent with initial memories."""
-        self.memory_store.add_many(memories)
+        for text in memories:
+            emb = self.text_encoder.encode(text, convert_to_tensor=True)
+            self.memory_bank.add_text(text, emb, source="seeded", importance=0.7)
 
     def save(self) -> None:
         """Save all state to disk."""
@@ -377,7 +383,7 @@ class CortexAgent:
         """Get agent statistics."""
         return {
             "conversation_turns": len(self.history),
-            "memories": len(self.memory_store),
+            "memories": len(self.memory_bank),
             "replay_buffer": len(self.online_trainer.buffer) if self.online_trainer else 0,
             "online_updates": self.online_trainer.total_updates if self.online_trainer else 0,
             "ema_loss": self.online_trainer.ema_loss if self.online_trainer else 0,
