@@ -5,10 +5,11 @@
 cortex-net is a **Context Assembly Network (CAN)** — small, trainable neural components that learn to compose the optimal context window for a frozen LLM.
 
 ```
-Query + History + Metadata
+Query + Full History + Metadata
         ↓
   Situation Encoder (MLP, 858K params)
         ↓ situation embedding (384-dim)
+        ├──→ Conversation Gate (bilinear + attention, 222K) ──→ relevant history turns
         ├──→ Memory Gate (bilinear, 147K) ──→ relevant memories
         ├──→ Strategy Selector (MLP, 51K) ──→ approach profile
         └──→ Confidence Estimator (MLP, 50K) → proceed/hedge/escalate
@@ -24,7 +25,7 @@ Query + History + Metadata
                               Update all components
 ```
 
-**Total: ~1.1M trainable parameters.** The LLM stays frozen.
+**Total: ~1.3M trainable parameters** across 5 components. The LLM stays frozen.
 
 ---
 
@@ -78,7 +79,35 @@ loss = max(0, margin - pos_score + neg_score)  # per positive/negative pair
 
 ---
 
-### 3. Strategy Selector
+### 3. Conversation Gate
+
+Selects which conversation history turns the LLM sees. Replaces fixed "last N messages" with learned relevance scoring over the full conversation.
+
+**Architecture:** Two-tier — bilinear pointwise scoring refined by cross-attention.
+
+```
+Tier 1 (bilinear): score_i = σ(situation^T · W · turn_i + recency - decay)
+Tier 2 (attention): self-attention among turns + cross-attention with situation
+Final: (1 - gate) · bilinear + gate · attention  [gate starts at 0.007]
+```
+
+**Key properties:**
+
+- **No fixed window** — scores all history, selects by learned threshold
+- **Adaptive threshold** — `max(absolute, mean + 0.5·std)` for same-domain conversations
+- **Can select nothing** — `min_turns=0` for completely unrelated queries
+- **Cached embeddings** — only new turns encoded each message, O(1) per turn
+- **Zero regression** — attention gate initialized near zero, untrained = pure bilinear = cosine similarity
+
+**Parameters:** 222K (147K bilinear + 74K attention + 1 threshold)
+
+**Result:** Debugging turns score 0.92-0.99 on follow-up, 0.000-0.005 on unrelated queries. Precision 0.89 on topic switching.
+
+**Details:** [Conversation Gate](conversation-gate.md)
+
+---
+
+### 4. Strategy Selector
 
 Learns which approach works for which situation. Two modes: **categorical** (fixed strategy set) and **continuous** (learned strategy space).
 
@@ -136,7 +165,7 @@ Output: Linear(128, 64) → L2-normalize → strategy embedding
 
 ---
 
-### 4. Confidence Estimator
+### 5. Confidence Estimator
 
 Predicts whether the assembled context is sufficient for a good response.
 
@@ -277,6 +306,7 @@ All state persists to disk. The system survives crashes, restarts, and deploymen
 | Developer strategy set | Strategies | 12 | — | implement, debug, refactor, review, test, explain, architect, quick_fix, document, explore, optimize, deploy |
 | Confidence Estimator | ECE | 0.010 | — | **< 0.1 target** |
 | Full comparison (6 scenarios) | P@3 | 0.833 | 0.778 (cosine RAG) | **+7%** |
+| Conversation Gate (4 scenarios) | Precision | 0.89 | 0.50 (untrained) | **+78%** |
 
 *Strategy selector accuracy with random embeddings (no text encoder in test); with real text embeddings, accuracy is 100% on training scenarios.
 
@@ -289,7 +319,9 @@ src/cortex_net/
 ├── context_assembler.py      # Full pipeline: query → assembled context
 ├── situation_encoder.py      # MLP fusion: text + history + metadata → embedding
 ├── memory_gate.py            # Bilinear relevance scorer, contrastive training
-├── strategy_selector.py      # 10-strategy classifier, epsilon-greedy exploration
+├── conversation_gate.py      # Two-tier conversation context selector
+├── pretrain_conversation_gate.py  # Synthetic pre-training for conversation gate
+├── strategy_selector.py      # Strategy classifier + continuous strategy space
 ├── confidence_estimator.py   # Calibrated confidence, BCE + ECE loss
 ├── joint_trainer.py          # Multi-task joint training, shared gradients
 ├── feedback_collector.py     # Implicit feedback extraction, replay buffer

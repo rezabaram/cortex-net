@@ -287,3 +287,123 @@ def expected_calibration_error(
         ece += (count / total) * abs(avg_conf - avg_acc)
 
     return ece
+
+
+# ── Runtime Calibration Tracker ─────────────────────────────────────
+
+
+class CalibrationTracker:
+    """Runtime calibration monitoring.
+
+    Tracks (predicted_confidence, actual_outcome) pairs over time
+    and computes ECE on demand. Useful for production monitoring
+    to detect concept drift or calibration degradation.
+
+    Usage:
+        tracker = CalibrationTracker(num_bins=10)
+
+        # After each prediction (known outcome):
+        tracker.record(predicted_confidence=0.75, actual_correct=True)
+
+        # After any accumulation:
+        ece = tracker.ece()  # float in [0, 1]
+        accuracy = tracker.accuracy()  # overall accuracy
+        bin_stats = tracker.bin_stats()  # per-bin breakdown
+
+        # Reset for new epoch/period:
+        tracker.reset()
+    """
+
+    def __init__(self, num_bins: int = 10) -> None:
+        """Initialize tracker.
+
+        Args:
+            num_bins: Number of confidence bins for ECE computation.
+        """
+        self.num_bins = num_bins
+        self.reset()
+
+    def reset(self) -> None:
+        """Reset all accumulated statistics."""
+        self.bin_correct = [0] * self.num_bins
+        self.bin_total = [0] * self.num_bins
+
+    def record(self, predicted_confidence: float, actual_correct: bool) -> None:
+        """Record a prediction-outcome pair.
+
+        Args:
+            predicted_confidence: Model's confidence [0, 1].
+            actual_correct: True if the model's output was correct.
+        """
+        bin_idx = self._conf_to_bin(predicted_confidence)
+        self.bin_total[bin_idx] += 1
+        if actual_correct:
+            self.bin_correct[bin_idx] += 1
+
+    def _conf_to_bin(self, confidence: float) -> int:
+        """Map confidence to bin index [0, num_bins-1]."""
+        if confidence >= 1.0:
+            return self.num_bins - 1
+        return int(confidence * self.num_bins)
+
+    def ece(self) -> float:
+        """Compute Expected Calibration Error.
+
+        Returns:
+            ECE in [0, 1]. Lower is better.
+        """
+        total = sum(self.bin_total)
+        if total == 0:
+            return 0.0
+
+        bin_boundaries = torch.linspace(0, 1, self.num_bins + 1)
+        ece = 0.0
+
+        for i in range(self.num_bins):
+            count = self.bin_total[i]
+            if count == 0:
+                continue
+
+            avg_conf = (bin_boundaries[i] + bin_boundaries[i + 1]) / 2
+            avg_acc = self.bin_correct[i] / count
+            ece += (count / total) * abs(avg_conf - avg_acc)
+
+        return ece
+
+    def accuracy(self) -> float:
+        """Compute overall accuracy.
+
+        Returns:
+            Accuracy in [0, 1].
+        """
+        total = sum(self.bin_total)
+        if total == 0:
+            return 0.0
+        return sum(self.bin_correct) / total
+
+    def bin_stats(self) -> list[dict]:
+        """Get per-bin statistics.
+
+        Returns:
+            List of dicts with bin info: {"bin": i, "conf_range": (lo, hi),
+            "count": n, "accuracy": a}.
+        """
+        bin_boundaries = torch.linspace(0, 1, self.num_bins + 1)
+        stats = []
+
+        for i in range(self.num_bins):
+            count = self.bin_total[i]
+            accuracy = self.bin_correct[i] / count if count > 0 else 0.0
+
+            stats.append({
+                "bin": i,
+                "conf_range": (bin_boundaries[i].item(), bin_boundaries[i + 1].item()),
+                "count": count,
+                "accuracy": accuracy,
+            })
+
+        return stats
+
+    def __len__(self) -> int:
+        """Total number of recorded samples."""
+        return sum(self.bin_total)

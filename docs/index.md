@@ -18,7 +18,8 @@ The result: an agent that gets meaningfully better at its job over time, without
 ## Quick Links
 
 - [Vision](vision.md) — The problem we're solving and why it matters
-- [Architecture](architecture.md) — The Context Assembly Network in detail
+- [Architecture](architecture.md) — The Context Assembly Network: 5 trainable components
+- [Conversation Gate](conversation-gate.md) — Learned conversation context selection (two-tier: bilinear + attention)
 - [Memory System](memory.md) — SQLite-backed extensible memory with retrieval, decay, and consolidation
 - [Training & Learning](training.md) — Joint training + online learning from real interactions
 - [Live Agent](agent.md) — Running a cortex-net agent with any OpenAI-compatible LLM
@@ -31,9 +32,12 @@ The result: an agent that gets meaningfully better at its job over time, without
 
 ✅ **Phase 1** — Memory Gate (+67% vs cosine)
 ✅ **Phase 2** — Situation Encoder (+50% on contextual retrieval)
-✅ **Phase 3** — Strategy Selector (10 profiles, learned selection)
+✅ **Phase 3** — Strategy Selector (12 developer strategies, learned selection + continuous blending)
 ✅ **Phase 4** — Confidence Estimator (ECE = 0.01)
-✅ **Phase 5** — Context Assembler (full pipeline, 1.1M params)
+✅ **Phase 5** — Context Assembler (full pipeline)
+✅ **Conversation Gate** — Two-tier (bilinear + cross-attention), precision 0.89 on topic switching
 ✅ **Joint Training** — Multi-task, shared gradients (loss 4.12 → 0.13)
+✅ **Online Learning** — Feedback extraction, replay buffer, continuous updates
+✅ **Live Agent (Atlas)** — Running on Slack with MiniMax M2.5, tools, monitoring
 ✅ **Comparison** — Beats cosine RAG by +7% precision with strategy + confidence on top
-📊 **102 tests passing** across 15 modules — See [Implementation Plan](implementation.md).
+📊 **213 tests passing** across 23 modules, **~1.3M trainable parameters**
