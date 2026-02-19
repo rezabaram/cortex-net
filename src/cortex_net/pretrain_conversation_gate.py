@@ -394,6 +394,73 @@ def evaluate(
     }
 
 
+def finetune_from_labels(
+    gate: ConversationGate,
+    encoder: SentenceTransformer,
+    labels_path: str,
+    conversation_path: str,
+    epochs: int = 20,
+    lr: float = 5e-4,
+    device: str = "cpu",
+    verbose: bool = True,
+) -> dict:
+    """Fine-tune the gate on human-labeled real conversation data.
+    
+    Uses labels from label_conversations.py.
+    """
+    from cortex_net.label_conversations import labels_to_training_data
+    from cortex_net.conversation_gate import build_turn_metadata
+    
+    data = labels_to_training_data(conversation_path, labels_path)
+    if not data:
+        return {"error": "no labels found"}
+    
+    if verbose:
+        print(f"Fine-tuning on {len(data)} labeled examples...")
+    
+    gate = gate.to(device)
+    gate.train()
+    optimizer = torch.optim.Adam(gate.parameters(), lr=lr)
+    
+    # Pre-encode all data
+    samples = []
+    for d in data:
+        all_texts = [d["current_text"]] + d["history_texts"]
+        embs = encoder.encode(all_texts, convert_to_tensor=True).to(device).clone()
+        current_emb = embs[0]
+        history_embs = embs[1:]
+        labels = torch.tensor(d["relevance"], dtype=torch.float32, device=device)
+        
+        roles = d.get("history_roles", ["user" if i % 2 == 0 else "assistant" for i in range(len(d["history_texts"]))])
+        turn_meta = build_turn_metadata(roles).to(device)
+        
+        samples.append((current_emb, history_embs, labels, turn_meta))
+    
+    losses = []
+    for epoch in range(epochs):
+        random.shuffle(samples)
+        epoch_loss = 0.0
+        for current_emb, history_embs, labels, turn_meta in samples:
+            optimizer.zero_grad()
+            loss = gate.training_loss(current_emb, history_embs, labels, turn_metadata=turn_meta)
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(gate.parameters(), 1.0)
+            optimizer.step()
+            epoch_loss += loss.item()
+        avg = epoch_loss / len(samples)
+        losses.append(avg)
+        if verbose:
+            print(f"  Epoch {epoch+1}/{epochs}: loss={avg:.4f}")
+    
+    gate.eval()
+    return {
+        "samples": len(samples),
+        "epochs": epochs,
+        "final_loss": losses[-1],
+        "loss_reduction": f"{losses[0]:.4f} → {losses[-1]:.4f}",
+    }
+
+
 if __name__ == "__main__":
     import sys
     

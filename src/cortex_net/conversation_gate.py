@@ -67,7 +67,8 @@ class BilinearScorer(nn.Module):
         super().__init__()
         self.W = nn.Parameter(torch.eye(dim))
         self.recency_weight = nn.Parameter(torch.tensor(0.3))
-        self.decay_rate = nn.Parameter(torch.tensor(0.5))
+        # FIX 3: Add temperature scaling (like MemoryGate)
+        self.temperature = nn.Parameter(torch.tensor(1.0))
 
         # Metadata influence on scoring
         self.meta_weight = nn.Linear(TURN_META_DIM, 1, bias=True)
@@ -84,22 +85,20 @@ class BilinearScorer(nn.Module):
         projected = situation @ self.W  # (dim,)
         raw_scores = turn_embeddings @ projected  # (num_turns,)
 
+        # FIX 1: Single temporal model (recency bias OR decay, not both)
         num_turns = turn_embeddings.shape[0]
         positions = torch.arange(num_turns, device=situation.device, dtype=torch.float32)
         recency = positions / max(num_turns - 1, 1)
         recency_bias = torch.sigmoid(self.recency_weight) * recency
-
-        age = 1.0 - recency
-        decay = torch.sigmoid(self.decay_rate)
-        temporal_penalty = decay * age
-
-        scores = raw_scores + recency_bias - temporal_penalty
+        scores = raw_scores + recency_bias
 
         # Add metadata influence if available
         if turn_metadata is not None:
             meta_bias = self.meta_weight(turn_metadata).squeeze(-1)  # (num_turns,)
             scores = scores + meta_bias
 
+        # FIX 3: Apply temperature scaling
+        scores = scores / torch.clamp(self.temperature, min=0.1)
         return scores
 
 
@@ -293,11 +292,12 @@ class ConversationGate(nn.Module):
         if len(scores) == 0:
             return torch.tensor([], dtype=torch.bool), scores
 
-        # Adaptive threshold
+        # Adaptive threshold (FIX 2: weighted combination instead of aggressive max)
         abs_threshold = torch.sigmoid(self.threshold_logit)
         if len(scores) > 4:
             rel_threshold = scores.mean() + 0.5 * scores.std()
-            threshold = torch.max(abs_threshold, rel_threshold)
+            # Blend thresholds: 70% absolute, 30% relative
+            threshold = 0.7 * abs_threshold + 0.3 * rel_threshold
         else:
             threshold = abs_threshold
 
@@ -417,7 +417,10 @@ class ConversationGate(nn.Module):
     ) -> torch.Tensor:
         """BCE loss against ground-truth relevance labels."""
         scores = self.score_turns(situation, turn_embeddings, turn_metadata=turn_metadata)
-        return F.binary_cross_entropy(scores, relevance_labels.float())
+        loss = F.binary_cross_entropy(scores, relevance_labels.float())
+        # FIX 4: Mark as trained after loss computation
+        self._trained.fill_(True)
+        return loss
 
     def load_state_dict(self, state_dict, strict=True, assign=False):
         """Load with backward compatibility for old flat checkpoint format."""
