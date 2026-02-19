@@ -223,11 +223,11 @@ def run():
                         response = "I processed your request but couldn't generate a response. Could you rephrase?"
                     # Convert markdown to Slack mrkdwn
                     response = md_to_slack(response)
-                    post_message(CHANNEL_ID, response, thread_ts=ts)
+                    post_message(CHANNEL_ID, response)
                     log.info(f"Responded ({len(response)} chars)")
                 except Exception as e:
                     log.error(f"Agent error: {e}")
-                    post_message(CHANNEL_ID, f"⚠️ Error: {e}", thread_ts=ts)
+                    post_message(CHANNEL_ID, f"⚠️ Error: {e}")
 
                 last_ts = ts
                 ts_file.write_text(last_ts)
