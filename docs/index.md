@@ -28,5 +28,7 @@ The result: an agent that gets meaningfully better at its job over time, without
 ✅ **Phase 2** — Situation Encoder (+50% on contextual retrieval)
 ✅ **Phase 3** — Strategy Selector (10 profiles, learned selection)
 ✅ **Phase 4** — Confidence Estimator (ECE = 0.01)
-✅ **Phase 5** — Context Assembler (full pipeline, 811K params)
-📊 **94 tests passing** — See [Implementation Plan](implementation.md).
+✅ **Phase 5** — Context Assembler (full pipeline, 1.1M params)
+✅ **Joint Training** — Multi-task, shared gradients (loss 4.12 → 0.13)
+✅ **Comparison** — Beats cosine RAG by +7% precision with strategy + confidence on top
+📊 **102 tests passing** across 15 modules — See [Implementation Plan](implementation.md).

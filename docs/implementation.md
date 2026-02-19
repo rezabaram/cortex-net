@@ -211,7 +211,8 @@ Gate wins where cosine fails: distractor rejection, past failure recall, user pr
 | Confidence Estimator | `confidence_estimator.py` | 13 | Calibrated confidence, ECE |
 | Context Assembler | `context_assembler.py` | 6 | Full pipeline orchestration |
 | Joint Trainer | `joint_trainer.py` | 4 | Multi-task training, ablation |
-| **Total** | **14 modules** | **100** | **All passing** |
+| Comparison Benchmark | `comparison_benchmark.py` | 2 | cortex-net vs RAG vs none |
+| **Total** | **15 modules** | **102** | **All passing** |
 
 ### Joint Training ✅
 - [x] `JointTrainer`: single optimizer across all components with shared gradients through Situation Encoder
@@ -220,10 +221,20 @@ Gate wins where cosine fails: distractor rejection, past failure recall, user pr
 - [x] **Results**: total loss 4.12 → 0.13, memory P@2 = 0.683, strategy acc = 100%
 - [x] Ablation framework with per-component evaluation
 
+### Comparison Benchmark ✅
+- [x] 6 realistic scenarios with real text embeddings (sentence-transformers)
+- [x] cortex-net: P@3=0.833, R@3=0.875, strategy=100%, confidence=100%
+- [x] cosine RAG: P@3=0.778, R@3=0.792
+- [x] **+7% precision** over standard RAG, plus strategy + confidence capabilities
+
+### Documentation & Release ✅
+- [x] README with results table, architecture diagram, quick start, full API
+- [x] Proper pyproject.toml with hatchling build
+- [x] mkdocs served via systemd (auto-restart)
+
 ### Remaining
-- [ ] Full agent comparison benchmark (cortex-net vs standard RAG vs no-memory)
-- [ ] Live agent integration
-- [ ] Documentation & release prep
+- [ ] Live agent integration (wire into a real agent loop)
+- [ ] Extended ablation with real text encodings (current uses synthetic for some)
 
 **Exit criteria:** cortex-net agent demonstrably outperforms baseline on key metrics, with clear evidence of improvement over time (learning curve).
 
