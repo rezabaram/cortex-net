@@ -123,8 +123,15 @@ def run():
     agent = create_agent()
     log.info(f"Atlas ready. Listening on #{CHANNEL_ID}. Memories: {len(agent.memory_bank)}")
 
-    # Start from 30 seconds ago to catch recent messages
-    last_ts = str(time.time() - 30)
+    # Persist last_ts so restarts don't skip messages
+    ts_file = AGENT_DIR / "state" / "last_ts"
+    ts_file.parent.mkdir(parents=True, exist_ok=True)
+    if ts_file.exists():
+        last_ts = ts_file.read_text().strip()
+        log.info(f"Resuming from last_ts={last_ts}")
+    else:
+        last_ts = str(time.time() - 60)
+        log.info(f"Fresh start, looking back 60s")
 
     while True:
         try:
@@ -158,6 +165,7 @@ def run():
                     post_message(CHANNEL_ID, f"⚠️ Error: {e}", thread_ts=ts)
 
                 last_ts = ts
+                ts_file.write_text(last_ts)
 
             # Save periodically
             if agent.stats()["conversation_turns"] % 20 == 0 and agent.stats()["conversation_turns"] > 0:
