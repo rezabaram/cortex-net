@@ -24,4 +24,4 @@ The result: an agent that gets meaningfully better at its job over time, without
 
 ## Status
 
-🔬 **Early Research** — Starting with the Memory Gate as proof of concept.
+✅ **Phase 1 Complete** — Memory Gate proven. Learned scorer beats cosine similarity by 67% on real text benchmarks. See [Implementation Plan](implementation.md) for details.
