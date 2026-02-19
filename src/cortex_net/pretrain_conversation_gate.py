@@ -179,9 +179,12 @@ def generate_scenario() -> tuple[str, list[str], list[int]]:
     all_pools = {**TOPICS, **SUBTOPICS}
     topics = list(all_pools.keys())
     scenario_type = random.choice([
-        "new_task", "followup", "reference_old", "mixed",
+        "new_task", "new_task",
+        "followup", "followup", "followup",  # 3x — most common in practice
+        "reference_old", "reference_old",
+        "mixed",
         "subtopic_switch",
-        "nothing_relevant", "nothing_relevant", "nothing_relevant",  # 3x weight — hardest case
+        "nothing_relevant", "nothing_relevant",  # 2x
     ])
     
     if scenario_type == "new_task":
