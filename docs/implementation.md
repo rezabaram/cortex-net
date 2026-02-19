@@ -212,7 +212,12 @@ Gate wins where cosine fails: distractor rejection, past failure recall, user pr
 | Context Assembler | `context_assembler.py` | 6 | Full pipeline orchestration |
 | Joint Trainer | `joint_trainer.py` | 4 | Multi-task training, ablation |
 | Comparison Benchmark | `comparison_benchmark.py` | 2 | cortex-net vs RAG vs none |
-| **Total** | **15 modules** | **102** | **All passing** |
+| Feedback Collector | `feedback_collector.py` | 15 | Implicit signal extraction, replay buffer |
+| Online Trainer | `online_trainer.py` | 7 | Continuous learning from interactions |
+| Memory Bank | `memory_bank.py` | 19 | SQLite-backed extensible memory |
+| Tools | `tools.py` | 17 | File, shell, edit tools + registry |
+| Agent | `agent.py` | 10 | Live agent with LLM + tools + learning |
+| **Total** | **20 modules** | **170** | **All passing** |
 
 ### Joint Training ✅
 - [x] `JointTrainer`: single optimizer across all components with shared gradients through Situation Encoder
@@ -231,6 +236,35 @@ Gate wins where cosine fails: distractor rejection, past failure recall, user pr
 - [x] README with results table, architecture diagram, quick start, full API
 - [x] Proper pyproject.toml with hatchling build
 - [x] mkdocs served via systemd (auto-restart)
+
+### Feedback Collector + Online Learning ✅
+- [x] Pattern-based feedback extraction (positive/negative/correction/confusion)
+- [x] Experience replay buffer (JSONL, persistent, recency-weighted sampling)
+- [x] Online trainer: incremental updates every N interactions, EMA loss tracking
+- [x] Small LR (1e-4) + gradient clipping for stability
+
+### MemoryBank ✅
+- [x] SQLite-backed with WAL mode, binary-packed embeddings
+- [x] Content types: text, image, file, audio, video, structured
+- [x] Metadata: source, importance, access count, timestamps, tags, parent_id
+- [x] Maintenance: importance decay, consolidation, pruning
+- [x] Replaces flat JSON memory store
+
+### Live Agent ✅
+- [x] `CortexAgent`: full pipeline (context assembly → LLM → feedback → learning)
+- [x] OpenAI-compatible API (tested with MiniMax M1)
+- [x] Auto-memorization of important exchanges
+- [x] State persistence (weights, memories, conversation, replay buffer)
+
+### Tool System ✅
+- [x] `ToolRegistry` with OpenAI function calling schema generation
+- [x] Built-in tools: `file_read`, `file_write`, `file_edit`, `file_list`, `shell`
+- [x] Tool loop: LLM calls tools iteratively (max 10 rounds)
+- [x] Safety: timeouts, output caps, dangerous flag
+
+### Slack Integration ✅
+- [x] Polling-based Slack bridge (systemd service, auto-restart)
+- [x] Atlas agent live in `#atlas` channel with full tool access
 
 ### Remaining
 - [ ] **Learned Memorization** — classifier that decides what to store and at what importance (trained from feedback signals). Critical at 1,000+ memories.
