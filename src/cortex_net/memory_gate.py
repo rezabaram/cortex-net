@@ -24,17 +24,27 @@ class MemoryGate(nn.Module):
 
     Falls back to cosine similarity when untrained (W ≈ I).
 
+    Numerical stability:
+        - Scores are clamped to prevent overflow/underflow in softmax
+        - Weight matrix has optional L2 regularization
+        - Input validation checks for NaN/Inf
+
     Args:
         situation_dim: Dimension of situation embeddings.
         memory_dim: Dimension of memory embeddings.
         init_as_identity: If True, initialize W close to identity/cosine behavior.
     """
 
+    # Clamp bounds for numerical stability
+    SCORE_CLAMP_MIN: float = -100.0
+    SCORE_CLAMP_MAX: float = 100.0
+
     def __init__(
         self,
         situation_dim: int = 384,
         memory_dim: int = 384,
         init_as_identity: bool = True,
+        temperature: float = 1.0,
     ) -> None:
         super().__init__()
         self.situation_dim = situation_dim
@@ -49,6 +59,9 @@ class MemoryGate(nn.Module):
             self.W.data += torch.randn_like(self.W) * 0.01
         else:
             nn.init.xavier_uniform_(self.W)
+
+        # Learnable temperature: higher = softer distribution, lower = sharper
+        self.temperature = nn.Parameter(torch.tensor(temperature, dtype=torch.float32))
 
         # Persistent flag: included in state_dict via register_buffer
         self.register_buffer("_trained_flag", torch.tensor(0, dtype=torch.bool))
@@ -73,7 +86,18 @@ class MemoryGate(nn.Module):
         Returns:
             Relevance scores: (N,) or (B, N).
         """
-        if use_cosine_fallback and not self.trained and self.situation_dim == self.memory_dim:
+        # Input validation: check for NaN/Inf
+        if torch.isnan(situation).any() or torch.isinf(situation).any():
+            raise ValueError("situation contains NaN or Inf values")
+        if torch.isnan(memories).any() or torch.isinf(memories).any():
+            raise ValueError("memories contains NaN or Inf values")
+
+        # Use cosine fallback if model is untrained OR weights became unstable
+        use_fallback = use_cosine_fallback and (
+            not self.trained or not self.is_stable()
+        )
+        
+        if use_fallback and self.situation_dim == self.memory_dim:
             return self._cosine_scores(situation, memories)
 
         # Bilinear: situation @ W @ memories.T
@@ -87,6 +111,16 @@ class MemoryGate(nn.Module):
             projected = situation @ self.W
             # (B, D_m) @ (D_m, N) -> (B, N)
             scores = projected @ memories.T
+
+        # Temperature scaling: sharper with low temp, softer with high temp
+        scores = scores / self.temperature.clamp(min=0.01)
+
+        # Numerical stability: clamp scores to prevent overflow/underflow downstream
+        scores = torch.clamp(scores, self.SCORE_CLAMP_MIN, self.SCORE_CLAMP_MAX)
+
+        # Check for NaN/Inf in output
+        if torch.isnan(scores).any() or torch.isinf(scores).any():
+            raise RuntimeError("score_memories produced NaN or Inf - possible weight instability")
 
         return scores
 
@@ -117,6 +151,7 @@ class MemoryGate(nn.Module):
         positive_memories: torch.Tensor,
         negative_memories: torch.Tensor,
         margin: float = 1.0,
+        weight_decay: float = 0.0,
     ) -> torch.Tensor:
         """Contrastive loss: positives should score higher than negatives by margin.
 
@@ -125,6 +160,7 @@ class MemoryGate(nn.Module):
             positive_memories: (P, D_m) relevant memory embeddings.
             negative_memories: (N, D_m) irrelevant memory embeddings.
             margin: Minimum score gap between positives and negatives.
+            weight_decay: L2 regularization strength for weight matrix W.
 
         Returns:
             Scalar loss.
@@ -134,6 +170,11 @@ class MemoryGate(nn.Module):
 
         # Mean positive score should exceed mean negative score by margin
         loss = F.relu(margin - pos_scores.mean() + neg_scores.mean())
+
+        # Optional weight decay for numerical stability
+        if weight_decay > 0:
+            loss = loss + weight_decay * torch.sum(self.W ** 2)
+
         return loss
 
     def train_step(
@@ -143,6 +184,7 @@ class MemoryGate(nn.Module):
         positive_memories: torch.Tensor,
         negative_memories: torch.Tensor,
         margin: float = 1.0,
+        weight_decay: float = 0.0,
     ) -> float:
         """Single training step.
 
@@ -152,17 +194,32 @@ class MemoryGate(nn.Module):
             positive_memories: (P, D_m) relevant memory embeddings.
             negative_memories: (N, D_m) irrelevant memory embeddings.
             margin: Contrastive margin.
+            weight_decay: L2 regularization strength.
 
         Returns:
             Loss value as float.
         """
         optimizer.zero_grad()
-        loss = self.contrastive_loss(situation, positive_memories, negative_memories, margin)
+        loss = self.contrastive_loss(situation, positive_memories, negative_memories, margin, weight_decay)
         loss.backward()
         optimizer.step()
 
         self._trained_flag.fill_(1)
         return loss.item()
+
+    def is_stable(self, eps: float = 1e6) -> bool:
+        """Check if weight matrix is numerically stable.
+
+        Args:
+            eps: Maximum allowed singular value before considering unstable.
+
+        Returns:
+            True if weights appear stable, False if they may have exploded.
+        """
+        # Compute spectral norm (largest singular value)
+        singular_values = torch.linalg.svdvals(self.W)
+        max_sv = singular_values[0].item()
+        return max_sv < eps
 
     @staticmethod
     def _cosine_scores(situation: torch.Tensor, memories: torch.Tensor) -> torch.Tensor:

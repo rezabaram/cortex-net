@@ -383,7 +383,7 @@ class CortexAgent:
 
         # Step 7: Build messages (conversation history + current)
         messages = []
-        for turn in self.history[-10:]:  # last 5 exchanges
+        for turn in self.history[-4:]:  # last 2 exchanges (test: does shorter context improve task-following?)
             messages.append({"role": turn.role, "content": turn.content})
         messages.append({"role": "user", "content": message})
 

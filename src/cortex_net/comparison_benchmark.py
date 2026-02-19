@@ -212,7 +212,7 @@ def run_comparison(
     # --- System 1: cortex-net (trained) ---
     encoder = SituationEncoder(text_dim=text_dim, output_dim=text_dim, hidden_dim=256, dropout=0.0).to(dev)
     gate = MemoryGate(situation_dim=text_dim, memory_dim=text_dim).to(dev)
-    selector = StrategySelector(situation_dim=text_dim, num_strategies=10, hidden_dim=128).to(dev)
+    selector = StrategySelector(situation_dim=text_dim, num_strategies=7, hidden_dim=128).to(dev)
     estimator = ConfidenceEstimator(situation_dim=text_dim, hidden_dim=64, dropout=0.0).to(dev)
     registry = StrategyRegistry()
 
