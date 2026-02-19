@@ -488,6 +488,21 @@ class CortexAgent:
             "gate_trained": self.gate.trained,
         }
 
+    def health(self) -> dict:
+        """Health check — quick overview of agent state."""
+        return {
+            "model": self.config.model,
+            "strategy_set": self.config.strategy_set or "generic",
+            "memories": len(self.memory_bank),
+            "replay_buffer": len(self.online_trainer.buffer) if self.online_trainer else 0,
+            "online_updates": self.online_trainer.total_updates if self.online_trainer else 0,
+            "ema_loss": round(self.online_trainer.ema_loss, 4) if self.online_trainer else 0,
+            "gate_trained": self.gate.trained,
+            "confidence_avg": round(self.monitor._avg_confidence, 3),
+            "total_interactions": self.monitor._total_interactions,
+            "tools_enabled": self.tool_registry is not None,
+        }
+
     def _save_state(self) -> None:
         """Save all component weights."""
         state_dir = Path(self.config.state_dir)
