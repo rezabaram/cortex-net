@@ -72,6 +72,9 @@ class AgentConfig:
     # State
     state_dir: str = "./state"
 
+    # Strategy
+    strategy_set: str | None = None  # "developer", "support", "generic", or None for default
+
     # Tools
     tools_enabled: bool = False
     tools_workdir: str = "."
@@ -183,13 +186,20 @@ class CortexAgent:
         self.gate = MemoryGate(
             situation_dim=dim, memory_dim=dim
         ).to(self.device)
+        # Strategy registry (configurable per agent type)
+        strategy_set = getattr(self.config, 'strategy_set', None)
+        if strategy_set:
+            from cortex_net.strategy_selector import get_strategy_set
+            self.registry = StrategyRegistry(get_strategy_set(strategy_set))
+        else:
+            self.registry = StrategyRegistry()
+
         self.selector = StrategySelector(
-            situation_dim=dim, num_strategies=10, hidden_dim=128
+            situation_dim=dim, num_strategies=len(self.registry), hidden_dim=128
         ).to(self.device)
         self.estimator = ConfidenceEstimator(
             situation_dim=dim, hidden_dim=64, dropout=0.1
         ).to(self.device)
-        self.registry = StrategyRegistry()
 
         # State management
         state_dir = Path(self.config.state_dir)

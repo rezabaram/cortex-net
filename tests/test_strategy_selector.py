@@ -14,17 +14,17 @@ from cortex_net.state_manager import StateManager, CheckpointMetadata
 
 @pytest.fixture
 def registry():
-    return StrategyRegistry()
+    return StrategyRegistry()  # generic set
 
 
 @pytest.fixture
-def selector():
-    return StrategySelector(situation_dim=32, num_strategies=10, hidden_dim=64)
+def selector(registry):
+    return StrategySelector(situation_dim=32, num_strategies=len(registry), hidden_dim=64)
 
 
 class TestStrategyRegistry:
     def test_default_strategies(self, registry):
-        assert len(registry) == 10
+        assert len(registry) == 7
         assert registry[0].id == "deep_research"
         assert registry.get_by_id("quick_answer") is not None
 
@@ -41,15 +41,15 @@ class TestStrategyRegistry:
 
 
 class TestStrategySelector:
-    def test_forward_shape(self, selector):
+    def test_forward_shape(self, selector, registry):
         sit = torch.randn(32)
         logits = selector(sit)
-        assert logits.shape == (10,)
+        assert logits.shape == (len(registry),)
 
-    def test_forward_batch(self, selector):
+    def test_forward_batch(self, selector, registry):
         sit = torch.randn(4, 32)
         logits = selector(sit)
-        assert logits.shape == (4, 10)
+        assert logits.shape == (4, len(registry))
 
     def test_select_returns_valid(self, selector, registry):
         sit = torch.randn(32)

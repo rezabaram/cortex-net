@@ -125,15 +125,15 @@ class ContextAssembler:
             situation_dim=text_dim, memory_dim=text_dim,
         ).to(self.device)
 
+        self.strategy_registry = StrategyRegistry()
+
         self.strategy_selector = StrategySelector(
-            situation_dim=text_dim, num_strategies=num_strategies,
+            situation_dim=text_dim, num_strategies=len(self.strategy_registry),
         ).to(self.device)
 
         self.confidence_estimator = ConfidenceEstimator(
             situation_dim=text_dim,
         ).to(self.device)
-
-        self.strategy_registry = StrategyRegistry()
         self.state_manager = StateManager(state_dir)
 
     def assemble(

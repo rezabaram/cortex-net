@@ -93,6 +93,7 @@ def create_agent() -> CortexAgent:
         system_prompt=CFG.get("system_prompt", "You are a helpful assistant."),
         online_learning=True,
         update_every=3,
+        strategy_set=CFG.get("strategy_set", None),
         tools_enabled=CFG.get("tools_enabled", False),
         tools_workdir=CFG.get("tools_workdir", "."),
     )

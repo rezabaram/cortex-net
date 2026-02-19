@@ -55,14 +55,14 @@ def build_strategy_scenarios() -> list[StrategyScenario]:
             message="How do I check the logs again?",
             metadata={"hour_of_day": 15, "conversation_length": 30, "message_length": 32},
             history=["How do I check the logs?", "Where are the logs?", "Can you show me the log output?"],
-            best_strategy_id="proactive_suggest",
+            best_strategy_id="step_by_step",
         ),
         StrategyScenario(
             name="uncertain_domain",
             description="Question outside known domain",
             message="What's the best approach for quantum error correction in our system?",
             metadata={"hour_of_day": 16, "conversation_length": 5, "message_length": 65},
-            best_strategy_id="hedge_escalate",
+            best_strategy_id="deep_research",
         ),
         StrategyScenario(
             name="multi_step_task",
@@ -83,7 +83,7 @@ def build_strategy_scenarios() -> list[StrategyScenario]:
             description="Programming assistance",
             message="Write a Python function to merge two sorted linked lists",
             metadata={"hour_of_day": 11, "conversation_length": 1, "message_length": 55},
-            best_strategy_id="code_assist",
+            best_strategy_id="step_by_step",
         ),
         StrategyScenario(
             name="info_overload",
@@ -133,6 +133,8 @@ def train_strategy_selector(
     epochs: int = 200,
     lr: float = 1e-3,
     text_encoder=None,
+    msg_embs: dict | None = None,
+    hist_embs: dict | None = None,
 ) -> list[float]:
     """Train the strategy selector on labeled scenarios."""
     if scenarios is None:
@@ -142,9 +144,11 @@ def train_strategy_selector(
         list(encoder.parameters()) + list(selector.parameters()), lr=lr
     )
 
-    # Pre-compute text embeddings
+    # Pre-compute text embeddings (or use provided)
     device = next(encoder.parameters()).device
-    if text_encoder is not None:
+    if msg_embs is not None and hist_embs is not None:
+        pass  # use provided embeddings
+    elif text_encoder is not None:
         msg_embs = {s.name: text_encoder.encode(s.message, convert_to_tensor=True).to(device) for s in scenarios}
         hist_embs = {}
         for s in scenarios:
