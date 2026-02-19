@@ -1,0 +1,4635 @@
+{
+  "query_results": [
+    {
+      "query": "What have we discussed about api?",
+      "query_category": "topic_recall",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 259,
+      "context_tokens": 64,
+      "retrieval_ms": 0.22077560424804688,
+      "retrieved_ids": [
+        "t00171",
+        "t01361",
+        "t01365",
+        "t02001",
+        "t00385"
+      ],
+      "relevant_ids": [
+        "t00066",
+        "t02056",
+        "t01105",
+        "t02579",
+        "t00917"
+      ]
+    },
+    {
+      "query": "What have we discussed about api?",
+      "query_category": "topic_recall",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 347,
+      "context_tokens": 86,
+      "retrieval_ms": 1.4781951904296875,
+      "retrieved_ids": [
+        "t00253",
+        "t00255",
+        "t00629",
+        "t00633",
+        "t00685"
+      ],
+      "relevant_ids": [
+        "t00066",
+        "t02056",
+        "t01105",
+        "t02579",
+        "t00917"
+      ]
+    },
+    {
+      "query": "What have we discussed about api?",
+      "query_category": "topic_recall",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.00476837158203125,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t00066",
+        "t02056",
+        "t01105",
+        "t02579",
+        "t00917"
+      ]
+    },
+    {
+      "query": "What have we discussed about api?",
+      "query_category": "topic_recall",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 270,
+      "context_tokens": 67,
+      "retrieval_ms": 0.0171661376953125,
+      "retrieved_ids": [
+        "t02619",
+        "t00457",
+        "t00103",
+        "t01127",
+        "t01003"
+      ],
+      "relevant_ids": [
+        "t00066",
+        "t02056",
+        "t01105",
+        "t02579",
+        "t00917"
+      ]
+    },
+    {
+      "query": "What have we discussed about api?",
+      "query_category": "topic_recall",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 271,
+      "context_tokens": 67,
+      "retrieval_ms": 0.8795261383056641,
+      "retrieved_ids": [
+        "t00001",
+        "t00279",
+        "t00885",
+        "t00415",
+        "t02651"
+      ],
+      "relevant_ids": [
+        "t00066",
+        "t02056",
+        "t01105",
+        "t02579",
+        "t00917"
+      ]
+    },
+    {
+      "query": "What have we discussed about database?",
+      "query_category": "topic_recall",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 221,
+      "context_tokens": 55,
+      "retrieval_ms": 0.16832351684570312,
+      "retrieved_ids": [
+        "t01261",
+        "t01153",
+        "t01417",
+        "t02499",
+        "t01307"
+      ],
+      "relevant_ids": [
+        "t02028",
+        "t01709",
+        "t01338",
+        "t01248",
+        "t01980"
+      ]
+    },
+    {
+      "query": "What have we discussed about database?",
+      "query_category": "topic_recall",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 347,
+      "context_tokens": 86,
+      "retrieval_ms": 1.4507770538330078,
+      "retrieved_ids": [
+        "t00253",
+        "t00255",
+        "t00629",
+        "t00633",
+        "t00685"
+      ],
+      "relevant_ids": [
+        "t02028",
+        "t01709",
+        "t01338",
+        "t01248",
+        "t01980"
+      ]
+    },
+    {
+      "query": "What have we discussed about database?",
+      "query_category": "topic_recall",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.003814697265625,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t02028",
+        "t01709",
+        "t01338",
+        "t01248",
+        "t01980"
+      ]
+    },
+    {
+      "query": "What have we discussed about database?",
+      "query_category": "topic_recall",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 299,
+      "context_tokens": 74,
+      "retrieval_ms": 0.014543533325195312,
+      "retrieved_ids": [
+        "t00915",
+        "t00571",
+        "t00419",
+        "t02233",
+        "t00357"
+      ],
+      "relevant_ids": [
+        "t02028",
+        "t01709",
+        "t01338",
+        "t01248",
+        "t01980"
+      ]
+    },
+    {
+      "query": "What have we discussed about database?",
+      "query_category": "topic_recall",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 314,
+      "context_tokens": 78,
+      "retrieval_ms": 0.7987022399902344,
+      "retrieved_ids": [
+        "t00671",
+        "t02239",
+        "t01747",
+        "t02293",
+        "t00611"
+      ],
+      "relevant_ids": [
+        "t02028",
+        "t01709",
+        "t01338",
+        "t01248",
+        "t01980"
+      ]
+    },
+    {
+      "query": "What have we discussed about react?",
+      "query_category": "topic_recall",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 257,
+      "context_tokens": 64,
+      "retrieval_ms": 0.1671314239501953,
+      "retrieved_ids": [
+        "t00141",
+        "t01147",
+        "t00277",
+        "t02009",
+        "t01493"
+      ],
+      "relevant_ids": [
+        "t02435",
+        "t01149",
+        "t00461",
+        "t00348",
+        "t00717"
+      ]
+    },
+    {
+      "query": "What have we discussed about react?",
+      "query_category": "topic_recall",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 347,
+      "context_tokens": 86,
+      "retrieval_ms": 1.2094974517822266,
+      "retrieved_ids": [
+        "t00253",
+        "t00255",
+        "t00629",
+        "t00633",
+        "t00685"
+      ],
+      "relevant_ids": [
+        "t02435",
+        "t01149",
+        "t00461",
+        "t00348",
+        "t00717"
+      ]
+    },
+    {
+      "query": "What have we discussed about react?",
+      "query_category": "topic_recall",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.003337860107421875,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t02435",
+        "t01149",
+        "t00461",
+        "t00348",
+        "t00717"
+      ]
+    },
+    {
+      "query": "What have we discussed about react?",
+      "query_category": "topic_recall",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 358,
+      "context_tokens": 89,
+      "retrieval_ms": 0.013828277587890625,
+      "retrieved_ids": [
+        "t02419",
+        "t01729",
+        "t00131",
+        "t00123",
+        "t00383"
+      ],
+      "relevant_ids": [
+        "t02435",
+        "t01149",
+        "t00461",
+        "t00348",
+        "t00717"
+      ]
+    },
+    {
+      "query": "What have we discussed about react?",
+      "query_category": "topic_recall",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 262,
+      "context_tokens": 65,
+      "retrieval_ms": 0.7474422454833984,
+      "retrieved_ids": [
+        "t00563",
+        "t02615",
+        "t02561",
+        "t00439",
+        "t00279"
+      ],
+      "relevant_ids": [
+        "t02435",
+        "t01149",
+        "t00461",
+        "t00348",
+        "t00717"
+      ]
+    },
+    {
+      "query": "What have we discussed about bug?",
+      "query_category": "topic_recall",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 345,
+      "context_tokens": 86,
+      "retrieval_ms": 0.16689300537109375,
+      "retrieved_ids": [
+        "t01213",
+        "t01099",
+        "t00237",
+        "t00141",
+        "t00209"
+      ],
+      "relevant_ids": [
+        "t02394",
+        "t00195",
+        "t01467",
+        "t02309",
+        "t00191"
+      ]
+    },
+    {
+      "query": "What have we discussed about bug?",
+      "query_category": "topic_recall",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 347,
+      "context_tokens": 86,
+      "retrieval_ms": 1.2290477752685547,
+      "retrieved_ids": [
+        "t00253",
+        "t00255",
+        "t00629",
+        "t00633",
+        "t00685"
+      ],
+      "relevant_ids": [
+        "t02394",
+        "t00195",
+        "t01467",
+        "t02309",
+        "t00191"
+      ]
+    },
+    {
+      "query": "What have we discussed about bug?",
+      "query_category": "topic_recall",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0035762786865234375,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t02394",
+        "t00195",
+        "t01467",
+        "t02309",
+        "t00191"
+      ]
+    },
+    {
+      "query": "What have we discussed about bug?",
+      "query_category": "topic_recall",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 273,
+      "context_tokens": 68,
+      "retrieval_ms": 0.013828277587890625,
+      "retrieved_ids": [
+        "t00895",
+        "t00953",
+        "t02069",
+        "t02465",
+        "t00109"
+      ],
+      "relevant_ids": [
+        "t02394",
+        "t00195",
+        "t01467",
+        "t02309",
+        "t00191"
+      ]
+    },
+    {
+      "query": "What have we discussed about bug?",
+      "query_category": "topic_recall",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 262,
+      "context_tokens": 65,
+      "retrieval_ms": 0.7951259613037109,
+      "retrieved_ids": [
+        "t00279",
+        "t02067",
+        "t00001",
+        "t00439",
+        "t01861"
+      ],
+      "relevant_ids": [
+        "t02394",
+        "t00195",
+        "t01467",
+        "t02309",
+        "t00191"
+      ]
+    },
+    {
+      "query": "What have we discussed about slow?",
+      "query_category": "topic_recall",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 393,
+      "context_tokens": 98,
+      "retrieval_ms": 0.17023086547851562,
+      "retrieved_ids": [
+        "t01479",
+        "t02109",
+        "t02391",
+        "t02393",
+        "t01981"
+      ],
+      "relevant_ids": [
+        "t02645",
+        "t02648",
+        "t00574",
+        "t00415",
+        "t01686"
+      ]
+    },
+    {
+      "query": "What have we discussed about slow?",
+      "query_category": "topic_recall",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 347,
+      "context_tokens": 86,
+      "retrieval_ms": 1.2562274932861328,
+      "retrieved_ids": [
+        "t00253",
+        "t00255",
+        "t00629",
+        "t00633",
+        "t00685"
+      ],
+      "relevant_ids": [
+        "t02645",
+        "t02648",
+        "t00574",
+        "t00415",
+        "t01686"
+      ]
+    },
+    {
+      "query": "What have we discussed about slow?",
+      "query_category": "topic_recall",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0035762786865234375,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t02645",
+        "t02648",
+        "t00574",
+        "t00415",
+        "t01686"
+      ]
+    },
+    {
+      "query": "What have we discussed about slow?",
+      "query_category": "topic_recall",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 258,
+      "context_tokens": 64,
+      "retrieval_ms": 0.013589859008789062,
+      "retrieved_ids": [
+        "t02299",
+        "t00815",
+        "t02661",
+        "t02233",
+        "t01719"
+      ],
+      "relevant_ids": [
+        "t02645",
+        "t02648",
+        "t00574",
+        "t00415",
+        "t01686"
+      ]
+    },
+    {
+      "query": "What have we discussed about slow?",
+      "query_category": "topic_recall",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 263,
+      "context_tokens": 65,
+      "retrieval_ms": 0.7681846618652344,
+      "retrieved_ids": [
+        "t00841",
+        "t00483",
+        "t02239",
+        "t01747",
+        "t00397"
+      ],
+      "relevant_ids": [
+        "t02645",
+        "t02648",
+        "t00574",
+        "t00415",
+        "t01686"
+      ]
+    },
+    {
+      "query": "What have we discussed about architecture?",
+      "query_category": "topic_recall",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 333,
+      "context_tokens": 83,
+      "retrieval_ms": 0.16188621520996094,
+      "retrieved_ids": [
+        "t02489",
+        "t02687",
+        "t01089",
+        "t00167",
+        "t01385"
+      ],
+      "relevant_ids": [
+        "t01516",
+        "t01608",
+        "t00601",
+        "t02488",
+        "t01090"
+      ]
+    },
+    {
+      "query": "What have we discussed about architecture?",
+      "query_category": "topic_recall",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 347,
+      "context_tokens": 86,
+      "retrieval_ms": 1.4450550079345703,
+      "retrieved_ids": [
+        "t00253",
+        "t00255",
+        "t00629",
+        "t00633",
+        "t00685"
+      ],
+      "relevant_ids": [
+        "t01516",
+        "t01608",
+        "t00601",
+        "t02488",
+        "t01090"
+      ]
+    },
+    {
+      "query": "What have we discussed about architecture?",
+      "query_category": "topic_recall",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0035762786865234375,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t01516",
+        "t01608",
+        "t00601",
+        "t02488",
+        "t01090"
+      ]
+    },
+    {
+      "query": "What have we discussed about architecture?",
+      "query_category": "topic_recall",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 313,
+      "context_tokens": 78,
+      "retrieval_ms": 0.01239776611328125,
+      "retrieved_ids": [
+        "t00903",
+        "t01839",
+        "t02413",
+        "t01139",
+        "t00027"
+      ],
+      "relevant_ids": [
+        "t01516",
+        "t01608",
+        "t00601",
+        "t02488",
+        "t01090"
+      ]
+    },
+    {
+      "query": "What have we discussed about architecture?",
+      "query_category": "topic_recall",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 269,
+      "context_tokens": 67,
+      "retrieval_ms": 0.7374286651611328,
+      "retrieved_ids": [
+        "t01747",
+        "t02239",
+        "t00841",
+        "t00515",
+        "t00397"
+      ],
+      "relevant_ids": [
+        "t01516",
+        "t01608",
+        "t00601",
+        "t02488",
+        "t01090"
+      ]
+    },
+    {
+      "query": "What have we discussed about auth?",
+      "query_category": "topic_recall",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 262,
+      "context_tokens": 65,
+      "retrieval_ms": 0.16021728515625,
+      "retrieved_ids": [
+        "t02373",
+        "t00151",
+        "t02453",
+        "t01993",
+        "t00991"
+      ],
+      "relevant_ids": [
+        "t02454",
+        "t00865",
+        "t02268",
+        "t00701",
+        "t00956"
+      ]
+    },
+    {
+      "query": "What have we discussed about auth?",
+      "query_category": "topic_recall",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 347,
+      "context_tokens": 86,
+      "retrieval_ms": 1.2788772583007812,
+      "retrieved_ids": [
+        "t00253",
+        "t00255",
+        "t00629",
+        "t00633",
+        "t00685"
+      ],
+      "relevant_ids": [
+        "t02454",
+        "t00865",
+        "t02268",
+        "t00701",
+        "t00956"
+      ]
+    },
+    {
+      "query": "What have we discussed about auth?",
+      "query_category": "topic_recall",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.003814697265625,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t02454",
+        "t00865",
+        "t02268",
+        "t00701",
+        "t00956"
+      ]
+    },
+    {
+      "query": "What have we discussed about auth?",
+      "query_category": "topic_recall",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 317,
+      "context_tokens": 79,
+      "retrieval_ms": 0.01430511474609375,
+      "retrieved_ids": [
+        "t00653",
+        "t01731",
+        "t01393",
+        "t01139",
+        "t00637"
+      ],
+      "relevant_ids": [
+        "t02454",
+        "t00865",
+        "t02268",
+        "t00701",
+        "t00956"
+      ]
+    },
+    {
+      "query": "What have we discussed about auth?",
+      "query_category": "topic_recall",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 265,
+      "context_tokens": 66,
+      "retrieval_ms": 0.7739067077636719,
+      "retrieved_ids": [
+        "t00279",
+        "t00543",
+        "t00001",
+        "t02631",
+        "t00439"
+      ],
+      "relevant_ids": [
+        "t02454",
+        "t00865",
+        "t02268",
+        "t00701",
+        "t00956"
+      ]
+    },
+    {
+      "query": "What have we discussed about deploy?",
+      "query_category": "topic_recall",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 260,
+      "context_tokens": 65,
+      "retrieval_ms": 0.15974044799804688,
+      "retrieved_ids": [
+        "t02227",
+        "t02475",
+        "t00799",
+        "t00303",
+        "t00371"
+      ],
+      "relevant_ids": [
+        "t02597",
+        "t01970",
+        "t01907",
+        "t01466",
+        "t01372"
+      ]
+    },
+    {
+      "query": "What have we discussed about deploy?",
+      "query_category": "topic_recall",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 347,
+      "context_tokens": 86,
+      "retrieval_ms": 1.2822151184082031,
+      "retrieved_ids": [
+        "t00253",
+        "t00255",
+        "t00629",
+        "t00633",
+        "t00685"
+      ],
+      "relevant_ids": [
+        "t02597",
+        "t01970",
+        "t01907",
+        "t01466",
+        "t01372"
+      ]
+    },
+    {
+      "query": "What have we discussed about deploy?",
+      "query_category": "topic_recall",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0035762786865234375,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t02597",
+        "t01970",
+        "t01907",
+        "t01466",
+        "t01372"
+      ]
+    },
+    {
+      "query": "What have we discussed about deploy?",
+      "query_category": "topic_recall",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 309,
+      "context_tokens": 77,
+      "retrieval_ms": 0.01430511474609375,
+      "retrieved_ids": [
+        "t00881",
+        "t01379",
+        "t00419",
+        "t00379",
+        "t01557"
+      ],
+      "relevant_ids": [
+        "t02597",
+        "t01970",
+        "t01907",
+        "t01466",
+        "t01372"
+      ]
+    },
+    {
+      "query": "What have we discussed about deploy?",
+      "query_category": "topic_recall",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 263,
+      "context_tokens": 65,
+      "retrieval_ms": 0.7476806640625,
+      "retrieved_ids": [
+        "t00279",
+        "t00439",
+        "t01779",
+        "t01887",
+        "t00001"
+      ],
+      "relevant_ids": [
+        "t02597",
+        "t01970",
+        "t01907",
+        "t01466",
+        "t01372"
+      ]
+    },
+    {
+      "query": "What have we discussed about logs?",
+      "query_category": "topic_recall",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 283,
+      "context_tokens": 70,
+      "retrieval_ms": 0.1628398895263672,
+      "retrieved_ids": [
+        "t01289",
+        "t02619",
+        "t01785",
+        "t00147",
+        "t00375"
+      ],
+      "relevant_ids": [
+        "t00161",
+        "t02205",
+        "t00148",
+        "t01683",
+        "t00565"
+      ]
+    },
+    {
+      "query": "What have we discussed about logs?",
+      "query_category": "topic_recall",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 347,
+      "context_tokens": 86,
+      "retrieval_ms": 1.2583732604980469,
+      "retrieved_ids": [
+        "t00253",
+        "t00255",
+        "t00629",
+        "t00633",
+        "t00685"
+      ],
+      "relevant_ids": [
+        "t00161",
+        "t02205",
+        "t00148",
+        "t01683",
+        "t00565"
+      ]
+    },
+    {
+      "query": "What have we discussed about logs?",
+      "query_category": "topic_recall",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0035762786865234375,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t00161",
+        "t02205",
+        "t00148",
+        "t01683",
+        "t00565"
+      ]
+    },
+    {
+      "query": "What have we discussed about logs?",
+      "query_category": "topic_recall",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 316,
+      "context_tokens": 79,
+      "retrieval_ms": 0.0133514404296875,
+      "retrieved_ids": [
+        "t00397",
+        "t01471",
+        "t01409",
+        "t02473",
+        "t01083"
+      ],
+      "relevant_ids": [
+        "t00161",
+        "t02205",
+        "t00148",
+        "t01683",
+        "t00565"
+      ]
+    },
+    {
+      "query": "What have we discussed about logs?",
+      "query_category": "topic_recall",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 271,
+      "context_tokens": 67,
+      "retrieval_ms": 0.7445812225341797,
+      "retrieved_ids": [
+        "t00279",
+        "t00879",
+        "t02099",
+        "t00001",
+        "t00415"
+      ],
+      "relevant_ids": [
+        "t00161",
+        "t02205",
+        "t00148",
+        "t01683",
+        "t00565"
+      ]
+    },
+    {
+      "query": "What have we discussed about test?",
+      "query_category": "topic_recall",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 319,
+      "context_tokens": 79,
+      "retrieval_ms": 0.1621246337890625,
+      "retrieved_ids": [
+        "t01099",
+        "t00381",
+        "t02369",
+        "t00905",
+        "t02339"
+      ],
+      "relevant_ids": [
+        "t00577",
+        "t01618",
+        "t00359",
+        "t01833",
+        "t02694"
+      ]
+    },
+    {
+      "query": "What have we discussed about test?",
+      "query_category": "topic_recall",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 347,
+      "context_tokens": 86,
+      "retrieval_ms": 1.2445449829101562,
+      "retrieved_ids": [
+        "t00253",
+        "t00255",
+        "t00629",
+        "t00633",
+        "t00685"
+      ],
+      "relevant_ids": [
+        "t00577",
+        "t01618",
+        "t00359",
+        "t01833",
+        "t02694"
+      ]
+    },
+    {
+      "query": "What have we discussed about test?",
+      "query_category": "topic_recall",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0035762786865234375,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t00577",
+        "t01618",
+        "t00359",
+        "t01833",
+        "t02694"
+      ]
+    },
+    {
+      "query": "What have we discussed about test?",
+      "query_category": "topic_recall",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 293,
+      "context_tokens": 73,
+      "retrieval_ms": 0.014066696166992188,
+      "retrieved_ids": [
+        "t00177",
+        "t01881",
+        "t02197",
+        "t00511",
+        "t01551"
+      ],
+      "relevant_ids": [
+        "t00577",
+        "t01618",
+        "t00359",
+        "t01833",
+        "t02694"
+      ]
+    },
+    {
+      "query": "What have we discussed about test?",
+      "query_category": "topic_recall",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 251,
+      "context_tokens": 62,
+      "retrieval_ms": 0.7424354553222656,
+      "retrieved_ids": [
+        "t00279",
+        "t00001",
+        "t00841",
+        "t00765",
+        "t00275"
+      ],
+      "relevant_ids": [
+        "t00577",
+        "t01618",
+        "t00359",
+        "t01833",
+        "t02694"
+      ]
+    },
+    {
+      "query": "What have we discussed about style?",
+      "query_category": "topic_recall",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 330,
+      "context_tokens": 82,
+      "retrieval_ms": 0.16045570373535156,
+      "retrieved_ids": [
+        "t00185",
+        "t01363",
+        "t02705",
+        "t00507",
+        "t01343"
+      ],
+      "relevant_ids": [
+        "t02506",
+        "t00841",
+        "t00132",
+        "t00480",
+        "t00486"
+      ]
+    },
+    {
+      "query": "What have we discussed about style?",
+      "query_category": "topic_recall",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 347,
+      "context_tokens": 86,
+      "retrieval_ms": 1.2331008911132812,
+      "retrieved_ids": [
+        "t00253",
+        "t00255",
+        "t00629",
+        "t00633",
+        "t00685"
+      ],
+      "relevant_ids": [
+        "t02506",
+        "t00841",
+        "t00132",
+        "t00480",
+        "t00486"
+      ]
+    },
+    {
+      "query": "What have we discussed about style?",
+      "query_category": "topic_recall",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0030994415283203125,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t02506",
+        "t00841",
+        "t00132",
+        "t00480",
+        "t00486"
+      ]
+    },
+    {
+      "query": "What have we discussed about style?",
+      "query_category": "topic_recall",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 314,
+      "context_tokens": 78,
+      "retrieval_ms": 0.026226043701171875,
+      "retrieved_ids": [
+        "t00323",
+        "t02261",
+        "t01201",
+        "t02575",
+        "t02533"
+      ],
+      "relevant_ids": [
+        "t02506",
+        "t00841",
+        "t00132",
+        "t00480",
+        "t00486"
+      ]
+    },
+    {
+      "query": "What have we discussed about style?",
+      "query_category": "topic_recall",
+      "method": "cortex_net",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.2,
+      "recall_at_5": 0.2,
+      "mrr_score": 0.3333333333333333,
+      "context_chars": 271,
+      "context_tokens": 67,
+      "retrieval_ms": 0.7715225219726562,
+      "retrieved_ids": [
+        "t01747",
+        "t02239",
+        "t00841",
+        "t02513",
+        "t00637"
+      ],
+      "relevant_ids": [
+        "t02506",
+        "t00841",
+        "t00132",
+        "t00480",
+        "t00486"
+      ]
+    },
+    {
+      "query": "What have we discussed about tool?",
+      "query_category": "topic_recall",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 270,
+      "context_tokens": 67,
+      "retrieval_ms": 0.16188621520996094,
+      "retrieved_ids": [
+        "t00543",
+        "t00277",
+        "t00439",
+        "t01895",
+        "t02631"
+      ],
+      "relevant_ids": [
+        "t00145",
+        "t01777",
+        "t00540",
+        "t02632",
+        "t00654"
+      ]
+    },
+    {
+      "query": "What have we discussed about tool?",
+      "query_category": "topic_recall",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 347,
+      "context_tokens": 86,
+      "retrieval_ms": 1.2536048889160156,
+      "retrieved_ids": [
+        "t00253",
+        "t00255",
+        "t00629",
+        "t00633",
+        "t00685"
+      ],
+      "relevant_ids": [
+        "t00145",
+        "t01777",
+        "t00540",
+        "t02632",
+        "t00654"
+      ]
+    },
+    {
+      "query": "What have we discussed about tool?",
+      "query_category": "topic_recall",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0035762786865234375,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t00145",
+        "t01777",
+        "t00540",
+        "t02632",
+        "t00654"
+      ]
+    },
+    {
+      "query": "What have we discussed about tool?",
+      "query_category": "topic_recall",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 331,
+      "context_tokens": 82,
+      "retrieval_ms": 0.013113021850585938,
+      "retrieved_ids": [
+        "t01481",
+        "t02365",
+        "t00787",
+        "t00285",
+        "t00187"
+      ],
+      "relevant_ids": [
+        "t00145",
+        "t01777",
+        "t00540",
+        "t02632",
+        "t00654"
+      ]
+    },
+    {
+      "query": "What have we discussed about tool?",
+      "query_category": "topic_recall",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 260,
+      "context_tokens": 65,
+      "retrieval_ms": 0.7500648498535156,
+      "retrieved_ids": [
+        "t01887",
+        "t00279",
+        "t00483",
+        "t02527",
+        "t01861"
+      ],
+      "relevant_ids": [
+        "t00145",
+        "t01777",
+        "t00540",
+        "t02632",
+        "t00654"
+      ]
+    },
+    {
+      "query": "What have we discussed about sprint?",
+      "query_category": "topic_recall",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.2,
+      "mrr_score": 0.25,
+      "context_chars": 194,
+      "context_tokens": 48,
+      "retrieval_ms": 0.16069412231445312,
+      "retrieved_ids": [
+        "t00047",
+        "t00045",
+        "t00495",
+        "t01231",
+        "t00635"
+      ],
+      "relevant_ids": [
+        "t01232",
+        "t01233",
+        "t01157",
+        "t01156",
+        "t01231"
+      ]
+    },
+    {
+      "query": "What have we discussed about sprint?",
+      "query_category": "topic_recall",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.2,
+      "mrr_score": 0.2,
+      "context_chars": 194,
+      "context_tokens": 48,
+      "retrieval_ms": 1.4786720275878906,
+      "retrieved_ids": [
+        "t00045",
+        "t00047",
+        "t00495",
+        "t00635",
+        "t01231"
+      ],
+      "relevant_ids": [
+        "t01232",
+        "t01233",
+        "t01157",
+        "t01156",
+        "t01231"
+      ]
+    },
+    {
+      "query": "What have we discussed about sprint?",
+      "query_category": "topic_recall",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0035762786865234375,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t01232",
+        "t01233",
+        "t01157",
+        "t01156",
+        "t01231"
+      ]
+    },
+    {
+      "query": "What have we discussed about sprint?",
+      "query_category": "topic_recall",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 312,
+      "context_tokens": 78,
+      "retrieval_ms": 0.01430511474609375,
+      "retrieved_ids": [
+        "t00933",
+        "t01185",
+        "t00327",
+        "t00953",
+        "t00413"
+      ],
+      "relevant_ids": [
+        "t01232",
+        "t01233",
+        "t01157",
+        "t01156",
+        "t01231"
+      ]
+    },
+    {
+      "query": "What have we discussed about sprint?",
+      "query_category": "topic_recall",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 328,
+      "context_tokens": 82,
+      "retrieval_ms": 0.7636547088623047,
+      "retrieved_ids": [
+        "t00279",
+        "t02395",
+        "t00645",
+        "t02591",
+        "t02297"
+      ],
+      "relevant_ids": [
+        "t01232",
+        "t01233",
+        "t01157",
+        "t01156",
+        "t01231"
+      ]
+    },
+    {
+      "query": "What have we discussed about review?",
+      "query_category": "topic_recall",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 363,
+      "context_tokens": 90,
+      "retrieval_ms": 0.16188621520996094,
+      "retrieved_ids": [
+        "t01099",
+        "t00237",
+        "t01213",
+        "t00683",
+        "t00381"
+      ],
+      "relevant_ids": [
+        "t01670",
+        "t01553",
+        "t00186",
+        "t01557",
+        "t00657"
+      ]
+    },
+    {
+      "query": "What have we discussed about review?",
+      "query_category": "topic_recall",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 347,
+      "context_tokens": 86,
+      "retrieval_ms": 1.249551773071289,
+      "retrieved_ids": [
+        "t00253",
+        "t00255",
+        "t00629",
+        "t00633",
+        "t00685"
+      ],
+      "relevant_ids": [
+        "t01670",
+        "t01553",
+        "t00186",
+        "t01557",
+        "t00657"
+      ]
+    },
+    {
+      "query": "What have we discussed about review?",
+      "query_category": "topic_recall",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.003337860107421875,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t01670",
+        "t01553",
+        "t00186",
+        "t01557",
+        "t00657"
+      ]
+    },
+    {
+      "query": "What have we discussed about review?",
+      "query_category": "topic_recall",
+      "method": "random",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.2,
+      "recall_at_5": 0.2,
+      "mrr_score": 1.0,
+      "context_chars": 322,
+      "context_tokens": 80,
+      "retrieval_ms": 0.012636184692382812,
+      "retrieved_ids": [
+        "t01557",
+        "t01139",
+        "t01857",
+        "t02603",
+        "t01495"
+      ],
+      "relevant_ids": [
+        "t01670",
+        "t01553",
+        "t00186",
+        "t01557",
+        "t00657"
+      ]
+    },
+    {
+      "query": "What have we discussed about review?",
+      "query_category": "topic_recall",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 261,
+      "context_tokens": 65,
+      "retrieval_ms": 0.7636547088623047,
+      "retrieved_ids": [
+        "t00001",
+        "t00279",
+        "t01779",
+        "t02067",
+        "t00439"
+      ],
+      "relevant_ids": [
+        "t01670",
+        "t01553",
+        "t00186",
+        "t01557",
+        "t00657"
+      ]
+    },
+    {
+      "query": "When did we discuss I need to design a REST API for user-service. What?",
+      "query_category": "cross_session",
+      "method": "cosine_topk",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 0.5,
+      "context_chars": 359,
+      "context_tokens": 89,
+      "retrieval_ms": 0.1647472381591797,
+      "retrieved_ids": [
+        "t00499",
+        "t00033",
+        "t01525",
+        "t01535",
+        "t00917"
+      ],
+      "relevant_ids": [
+        "t00034",
+        "t00033"
+      ]
+    },
+    {
+      "query": "When did we discuss I need to design a REST API for user-service. What?",
+      "query_category": "cross_session",
+      "method": "bm25",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 1.0,
+      "context_chars": 359,
+      "context_tokens": 89,
+      "retrieval_ms": 3.0248165130615234,
+      "retrieved_ids": [
+        "t00033",
+        "t00499",
+        "t00917",
+        "t01525",
+        "t01535"
+      ],
+      "relevant_ids": [
+        "t00034",
+        "t00033"
+      ]
+    },
+    {
+      "query": "When did we discuss I need to design a REST API for user-service. What?",
+      "query_category": "cross_session",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0035762786865234375,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t00034",
+        "t00033"
+      ]
+    },
+    {
+      "query": "When did we discuss I need to design a REST API for user-service. What?",
+      "query_category": "cross_session",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 277,
+      "context_tokens": 69,
+      "retrieval_ms": 0.013589859008789062,
+      "retrieved_ids": [
+        "t00667",
+        "t01517",
+        "t01455",
+        "t00859",
+        "t01093"
+      ],
+      "relevant_ids": [
+        "t00034",
+        "t00033"
+      ]
+    },
+    {
+      "query": "When did we discuss I need to design a REST API for user-service. What?",
+      "query_category": "cross_session",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 258,
+      "context_tokens": 64,
+      "retrieval_ms": 0.8480548858642578,
+      "retrieved_ids": [
+        "t00001",
+        "t02067",
+        "t00483",
+        "t00279",
+        "t01895"
+      ],
+      "relevant_ids": [
+        "t00034",
+        "t00033"
+      ]
+    },
+    {
+      "query": "When did we discuss I switched from DataDog to Grafana because team fa?",
+      "query_category": "cross_session",
+      "method": "cosine_topk",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 1.0,
+      "context_chars": 314,
+      "context_tokens": 78,
+      "retrieval_ms": 0.17404556274414062,
+      "retrieved_ids": [
+        "t00043",
+        "t01893",
+        "t01567",
+        "t01873",
+        "t01781"
+      ],
+      "relevant_ids": [
+        "t00044",
+        "t00043"
+      ]
+    },
+    {
+      "query": "When did we discuss I switched from DataDog to Grafana because team fa?",
+      "query_category": "cross_session",
+      "method": "bm25",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 1.0,
+      "context_chars": 304,
+      "context_tokens": 76,
+      "retrieval_ms": 2.69317626953125,
+      "retrieved_ids": [
+        "t00043",
+        "t01873",
+        "t00463",
+        "t01189",
+        "t01571"
+      ],
+      "relevant_ids": [
+        "t00044",
+        "t00043"
+      ]
+    },
+    {
+      "query": "When did we discuss I switched from DataDog to Grafana because team fa?",
+      "query_category": "cross_session",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0035762786865234375,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t00044",
+        "t00043"
+      ]
+    },
+    {
+      "query": "When did we discuss I switched from DataDog to Grafana because team fa?",
+      "query_category": "cross_session",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 302,
+      "context_tokens": 75,
+      "retrieval_ms": 0.013113021850585938,
+      "retrieved_ids": [
+        "t02655",
+        "t00293",
+        "t02495",
+        "t02601",
+        "t00701"
+      ],
+      "relevant_ids": [
+        "t00044",
+        "t00043"
+      ]
+    },
+    {
+      "query": "When did we discuss I switched from DataDog to Grafana because team fa?",
+      "query_category": "cross_session",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 271,
+      "context_tokens": 67,
+      "retrieval_ms": 0.9448528289794922,
+      "retrieved_ids": [
+        "t00877",
+        "t01831",
+        "t00415",
+        "t00879",
+        "t00483"
+      ],
+      "relevant_ids": [
+        "t00044",
+        "t00043"
+      ]
+    },
+    {
+      "query": "When did we discuss The PaymentProcessor UI doesn't match the design. ?",
+      "query_category": "cross_session",
+      "method": "cosine_topk",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 1.0,
+      "context_chars": 316,
+      "context_tokens": 79,
+      "retrieval_ms": 0.17452239990234375,
+      "retrieved_ids": [
+        "t00095",
+        "t00507",
+        "t01343",
+        "t02705",
+        "t00051"
+      ],
+      "relevant_ids": [
+        "t00096",
+        "t00095"
+      ]
+    },
+    {
+      "query": "When did we discuss The PaymentProcessor UI doesn't match the design. ?",
+      "query_category": "cross_session",
+      "method": "bm25",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 1.0,
+      "context_chars": 299,
+      "context_tokens": 74,
+      "retrieval_ms": 2.499103546142578,
+      "retrieved_ids": [
+        "t00095",
+        "t00507",
+        "t01343",
+        "t02705",
+        "t00347"
+      ],
+      "relevant_ids": [
+        "t00096",
+        "t00095"
+      ]
+    },
+    {
+      "query": "When did we discuss The PaymentProcessor UI doesn't match the design. ?",
+      "query_category": "cross_session",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0040531158447265625,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t00096",
+        "t00095"
+      ]
+    },
+    {
+      "query": "When did we discuss The PaymentProcessor UI doesn't match the design. ?",
+      "query_category": "cross_session",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 299,
+      "context_tokens": 74,
+      "retrieval_ms": 0.01430511474609375,
+      "retrieved_ids": [
+        "t02187",
+        "t01003",
+        "t00669",
+        "t01893",
+        "t01555"
+      ],
+      "relevant_ids": [
+        "t00096",
+        "t00095"
+      ]
+    },
+    {
+      "query": "When did we discuss The PaymentProcessor UI doesn't match the design. ?",
+      "query_category": "cross_session",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 289,
+      "context_tokens": 72,
+      "retrieval_ms": 0.835418701171875,
+      "retrieved_ids": [
+        "t00483",
+        "t00279",
+        "t02395",
+        "t00645",
+        "t00001"
+      ],
+      "relevant_ids": [
+        "t00096",
+        "t00095"
+      ]
+    },
+    {
+      "query": "When did we discuss Need a dashboard for admin page. What should it sh?",
+      "query_category": "cross_session",
+      "method": "cosine_topk",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 1.0,
+      "context_chars": 285,
+      "context_tokens": 71,
+      "retrieval_ms": 0.1671314239501953,
+      "retrieved_ids": [
+        "t00119",
+        "t01065",
+        "t02081",
+        "t00451",
+        "t01627"
+      ],
+      "relevant_ids": [
+        "t00119",
+        "t00120"
+      ]
+    },
+    {
+      "query": "When did we discuss Need a dashboard for admin page. What should it sh?",
+      "query_category": "cross_session",
+      "method": "bm25",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 1.0,
+      "context_chars": 271,
+      "context_tokens": 67,
+      "retrieval_ms": 3.0307769775390625,
+      "retrieved_ids": [
+        "t00119",
+        "t01631",
+        "t02081",
+        "t02183",
+        "t00377"
+      ],
+      "relevant_ids": [
+        "t00119",
+        "t00120"
+      ]
+    },
+    {
+      "query": "When did we discuss Need a dashboard for admin page. What should it sh?",
+      "query_category": "cross_session",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0035762786865234375,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t00119",
+        "t00120"
+      ]
+    },
+    {
+      "query": "When did we discuss Need a dashboard for admin page. What should it sh?",
+      "query_category": "cross_session",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 293,
+      "context_tokens": 73,
+      "retrieval_ms": 0.013589859008789062,
+      "retrieved_ids": [
+        "t01105",
+        "t02621",
+        "t02281",
+        "t00899",
+        "t01329"
+      ],
+      "relevant_ids": [
+        "t00119",
+        "t00120"
+      ]
+    },
+    {
+      "query": "When did we discuss Need a dashboard for admin page. What should it sh?",
+      "query_category": "cross_session",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 266,
+      "context_tokens": 66,
+      "retrieval_ms": 0.9171962738037109,
+      "retrieved_ids": [
+        "t00279",
+        "t00439",
+        "t00001",
+        "t01887",
+        "t00543"
+      ],
+      "relevant_ids": [
+        "t00119",
+        "t00120"
+      ]
+    },
+    {
+      "query": "When did we discuss Don't use monkey patching in this project \u2014 I've h?",
+      "query_category": "cross_session",
+      "method": "cosine_topk",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 1.0,
+      "context_chars": 389,
+      "context_tokens": 97,
+      "retrieval_ms": 0.16736984252929688,
+      "retrieved_ids": [
+        "t00209",
+        "t00129",
+        "t00289",
+        "t00527",
+        "t00203"
+      ],
+      "relevant_ids": [
+        "t00209",
+        "t00210"
+      ]
+    },
+    {
+      "query": "When did we discuss Don't use monkey patching in this project \u2014 I've h?",
+      "query_category": "cross_session",
+      "method": "bm25",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 0.3333333333333333,
+      "context_chars": 389,
+      "context_tokens": 97,
+      "retrieval_ms": 3.0012130737304688,
+      "retrieved_ids": [
+        "t00129",
+        "t00203",
+        "t00209",
+        "t00289",
+        "t00527"
+      ],
+      "relevant_ids": [
+        "t00209",
+        "t00210"
+      ]
+    },
+    {
+      "query": "When did we discuss Don't use monkey patching in this project \u2014 I've h?",
+      "query_category": "cross_session",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0035762786865234375,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t00209",
+        "t00210"
+      ]
+    },
+    {
+      "query": "When did we discuss Don't use monkey patching in this project \u2014 I've h?",
+      "query_category": "cross_session",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 338,
+      "context_tokens": 84,
+      "retrieval_ms": 0.0133514404296875,
+      "retrieved_ids": [
+        "t00229",
+        "t00939",
+        "t00131",
+        "t01293",
+        "t01643"
+      ],
+      "relevant_ids": [
+        "t00209",
+        "t00210"
+      ]
+    },
+    {
+      "query": "When did we discuss Don't use monkey patching in this project \u2014 I've h?",
+      "query_category": "cross_session",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 283,
+      "context_tokens": 70,
+      "retrieval_ms": 0.9644031524658203,
+      "retrieved_ids": [
+        "t00001",
+        "t00279",
+        "t01785",
+        "t02619",
+        "t01289"
+      ],
+      "relevant_ids": [
+        "t00209",
+        "t00210"
+      ]
+    },
+    {
+      "query": "When did we discuss PR is ready for user page. Main concern is backwar?",
+      "query_category": "cross_session",
+      "method": "cosine_topk",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 0.5,
+      "context_chars": 300,
+      "context_tokens": 75,
+      "retrieval_ms": 0.16546249389648438,
+      "retrieved_ids": [
+        "t02419",
+        "t00247",
+        "t00379",
+        "t02421",
+        "t01269"
+      ],
+      "relevant_ids": [
+        "t00247",
+        "t00248"
+      ]
+    },
+    {
+      "query": "When did we discuss PR is ready for user page. Main concern is backwar?",
+      "query_category": "cross_session",
+      "method": "bm25",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 0.5,
+      "context_chars": 308,
+      "context_tokens": 77,
+      "retrieval_ms": 3.010988235473633,
+      "retrieved_ids": [
+        "t02419",
+        "t00247",
+        "t00379",
+        "t00609",
+        "t00899"
+      ],
+      "relevant_ids": [
+        "t00247",
+        "t00248"
+      ]
+    },
+    {
+      "query": "When did we discuss PR is ready for user page. Main concern is backwar?",
+      "query_category": "cross_session",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.003814697265625,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t00247",
+        "t00248"
+      ]
+    },
+    {
+      "query": "When did we discuss PR is ready for user page. Main concern is backwar?",
+      "query_category": "cross_session",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 295,
+      "context_tokens": 73,
+      "retrieval_ms": 0.0133514404296875,
+      "retrieved_ids": [
+        "t01097",
+        "t00271",
+        "t00865",
+        "t02323",
+        "t01289"
+      ],
+      "relevant_ids": [
+        "t00247",
+        "t00248"
+      ]
+    },
+    {
+      "query": "When did we discuss PR is ready for user page. Main concern is backwar?",
+      "query_category": "cross_session",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 305,
+      "context_tokens": 76,
+      "retrieval_ms": 0.9205341339111328,
+      "retrieved_ids": [
+        "t00001",
+        "t00645",
+        "t02395",
+        "t00279",
+        "t00673"
+      ],
+      "relevant_ids": [
+        "t00247",
+        "t00248"
+      ]
+    },
+    {
+      "query": "When did we discuss We have 12 days. Can we finish search v2 and notif?",
+      "query_category": "cross_session",
+      "method": "cosine_topk",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 1.0,
+      "context_chars": 346,
+      "context_tokens": 86,
+      "retrieval_ms": 0.16832351684570312,
+      "retrieved_ids": [
+        "t00629",
+        "t01919",
+        "t00255",
+        "t02327",
+        "t02541"
+      ],
+      "relevant_ids": [
+        "t00630",
+        "t00629"
+      ]
+    },
+    {
+      "query": "When did we discuss We have 12 days. Can we finish search v2 and notif?",
+      "query_category": "cross_session",
+      "method": "bm25",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 1.0,
+      "context_chars": 349,
+      "context_tokens": 87,
+      "retrieval_ms": 3.3354759216308594,
+      "retrieved_ids": [
+        "t00629",
+        "t01575",
+        "t02325",
+        "t02541",
+        "t00255"
+      ],
+      "relevant_ids": [
+        "t00630",
+        "t00629"
+      ]
+    },
+    {
+      "query": "When did we discuss We have 12 days. Can we finish search v2 and notif?",
+      "query_category": "cross_session",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.003814697265625,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t00630",
+        "t00629"
+      ]
+    },
+    {
+      "query": "When did we discuss We have 12 days. Can we finish search v2 and notif?",
+      "query_category": "cross_session",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 300,
+      "context_tokens": 75,
+      "retrieval_ms": 0.013828277587890625,
+      "retrieved_ids": [
+        "t00871",
+        "t02685",
+        "t02045",
+        "t01621",
+        "t02633"
+      ],
+      "relevant_ids": [
+        "t00630",
+        "t00629"
+      ]
+    },
+    {
+      "query": "When did we discuss We have 12 days. Can we finish search v2 and notif?",
+      "query_category": "cross_session",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 268,
+      "context_tokens": 67,
+      "retrieval_ms": 0.9028911590576172,
+      "retrieved_ids": [
+        "t02239",
+        "t01747",
+        "t00841",
+        "t00279",
+        "t00397"
+      ],
+      "relevant_ids": [
+        "t00630",
+        "t00629"
+      ]
+    },
+    {
+      "query": "When did we discuss My workflow is: branch from main \u2192 code review \u2192 p?",
+      "query_category": "cross_session",
+      "method": "cosine_topk",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 0.5,
+      "context_chars": 311,
+      "context_tokens": 77,
+      "retrieval_ms": 0.16570091247558594,
+      "retrieved_ids": [
+        "t00545",
+        "t00653",
+        "t00467",
+        "t02529",
+        "t00663"
+      ],
+      "relevant_ids": [
+        "t00653",
+        "t00654"
+      ]
+    },
+    {
+      "query": "When did we discuss My workflow is: branch from main \u2192 code review \u2192 p?",
+      "query_category": "cross_session",
+      "method": "bm25",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 1.0,
+      "context_chars": 341,
+      "context_tokens": 85,
+      "retrieval_ms": 3.259420394897461,
+      "retrieved_ids": [
+        "t00653",
+        "t00467",
+        "t00545",
+        "t00143",
+        "t02533"
+      ],
+      "relevant_ids": [
+        "t00653",
+        "t00654"
+      ]
+    },
+    {
+      "query": "When did we discuss My workflow is: branch from main \u2192 code review \u2192 p?",
+      "query_category": "cross_session",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0035762786865234375,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t00653",
+        "t00654"
+      ]
+    },
+    {
+      "query": "When did we discuss My workflow is: branch from main \u2192 code review \u2192 p?",
+      "query_category": "cross_session",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 335,
+      "context_tokens": 83,
+      "retrieval_ms": 0.01430511474609375,
+      "retrieved_ids": [
+        "t01879",
+        "t00585",
+        "t01085",
+        "t00571",
+        "t01011"
+      ],
+      "relevant_ids": [
+        "t00653",
+        "t00654"
+      ]
+    },
+    {
+      "query": "When did we discuss My workflow is: branch from main \u2192 code review \u2192 p?",
+      "query_category": "cross_session",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 258,
+      "context_tokens": 64,
+      "retrieval_ms": 0.9109973907470703,
+      "retrieved_ids": [
+        "t00001",
+        "t02067",
+        "t00275",
+        "t00439",
+        "t00279"
+      ],
+      "relevant_ids": [
+        "t00653",
+        "t00654"
+      ]
+    },
+    {
+      "query": "When did we discuss analytics-service response time went from 155ms to?",
+      "query_category": "cross_session",
+      "method": "cosine_topk",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 1.0,
+      "context_chars": 358,
+      "context_tokens": 89,
+      "retrieval_ms": 0.1697540283203125,
+      "retrieved_ids": [
+        "t01079",
+        "t02675",
+        "t00571",
+        "t02657",
+        "t01115"
+      ],
+      "relevant_ids": [
+        "t01080",
+        "t01079"
+      ]
+    },
+    {
+      "query": "When did we discuss analytics-service response time went from 155ms to?",
+      "query_category": "cross_session",
+      "method": "bm25",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 1.0,
+      "context_chars": 358,
+      "context_tokens": 89,
+      "retrieval_ms": 2.281665802001953,
+      "retrieved_ids": [
+        "t01079",
+        "t00571",
+        "t02657",
+        "t02675",
+        "t00105"
+      ],
+      "relevant_ids": [
+        "t01080",
+        "t01079"
+      ]
+    },
+    {
+      "query": "When did we discuss analytics-service response time went from 155ms to?",
+      "query_category": "cross_session",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.003337860107421875,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t01080",
+        "t01079"
+      ]
+    },
+    {
+      "query": "When did we discuss analytics-service response time went from 155ms to?",
+      "query_category": "cross_session",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 310,
+      "context_tokens": 77,
+      "retrieval_ms": 0.013828277587890625,
+      "retrieved_ids": [
+        "t02299",
+        "t02207",
+        "t01077",
+        "t02395",
+        "t01755"
+      ],
+      "relevant_ids": [
+        "t01080",
+        "t01079"
+      ]
+    },
+    {
+      "query": "When did we discuss analytics-service response time went from 155ms to?",
+      "query_category": "cross_session",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 310,
+      "context_tokens": 77,
+      "retrieval_ms": 0.8444786071777344,
+      "retrieved_ids": [
+        "t00645",
+        "t02395",
+        "t00279",
+        "t02591",
+        "t00001"
+      ],
+      "relevant_ids": [
+        "t01080",
+        "t01079"
+      ]
+    },
+    {
+      "query": "When did we discuss How should we deploy inventory-service to producti?",
+      "query_category": "cross_session",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 269,
+      "context_tokens": 67,
+      "retrieval_ms": 0.1666545867919922,
+      "retrieved_ids": [
+        "t00299",
+        "t00305",
+        "t00775",
+        "t01119",
+        "t00551"
+      ],
+      "relevant_ids": [
+        "t01128",
+        "t01127"
+      ]
+    },
+    {
+      "query": "When did we discuss How should we deploy inventory-service to producti?",
+      "query_category": "cross_session",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 269,
+      "context_tokens": 67,
+      "retrieval_ms": 2.2859573364257812,
+      "retrieved_ids": [
+        "t00299",
+        "t00305",
+        "t00551",
+        "t00775",
+        "t01119"
+      ],
+      "relevant_ids": [
+        "t01128",
+        "t01127"
+      ]
+    },
+    {
+      "query": "When did we discuss How should we deploy inventory-service to producti?",
+      "query_category": "cross_session",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0040531158447265625,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t01128",
+        "t01127"
+      ]
+    },
+    {
+      "query": "When did we discuss How should we deploy inventory-service to producti?",
+      "query_category": "cross_session",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 298,
+      "context_tokens": 74,
+      "retrieval_ms": 0.0133514404296875,
+      "retrieved_ids": [
+        "t02391",
+        "t01635",
+        "t01483",
+        "t00899",
+        "t00567"
+      ],
+      "relevant_ids": [
+        "t01128",
+        "t01127"
+      ]
+    },
+    {
+      "query": "When did we discuss How should we deploy inventory-service to producti?",
+      "query_category": "cross_session",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 266,
+      "context_tokens": 66,
+      "retrieval_ms": 0.8037090301513672,
+      "retrieved_ids": [
+        "t00001",
+        "t02239",
+        "t01747",
+        "t00731",
+        "t00397"
+      ],
+      "relevant_ids": [
+        "t01128",
+        "t01127"
+      ]
+    },
+    {
+      "query": "When did we discuss Should we use PagerDuty or Sentry for container or?",
+      "query_category": "cross_session",
+      "method": "cosine_topk",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 1.0,
+      "context_chars": 314,
+      "context_tokens": 78,
+      "retrieval_ms": 0.1678466796875,
+      "retrieved_ids": [
+        "t01159",
+        "t00795",
+        "t02559",
+        "t01757",
+        "t01121"
+      ],
+      "relevant_ids": [
+        "t01160",
+        "t01159"
+      ]
+    },
+    {
+      "query": "When did we discuss Should we use PagerDuty or Sentry for container or?",
+      "query_category": "cross_session",
+      "method": "bm25",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 0.3333333333333333,
+      "context_chars": 314,
+      "context_tokens": 78,
+      "retrieval_ms": 2.857208251953125,
+      "retrieved_ids": [
+        "t00795",
+        "t01121",
+        "t01159",
+        "t01757",
+        "t02559"
+      ],
+      "relevant_ids": [
+        "t01160",
+        "t01159"
+      ]
+    },
+    {
+      "query": "When did we discuss Should we use PagerDuty or Sentry for container or?",
+      "query_category": "cross_session",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.003814697265625,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t01160",
+        "t01159"
+      ]
+    },
+    {
+      "query": "When did we discuss Should we use PagerDuty or Sentry for container or?",
+      "query_category": "cross_session",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 295,
+      "context_tokens": 73,
+      "retrieval_ms": 0.013113021850585938,
+      "retrieved_ids": [
+        "t02087",
+        "t02021",
+        "t00373",
+        "t00193",
+        "t00449"
+      ],
+      "relevant_ids": [
+        "t01160",
+        "t01159"
+      ]
+    },
+    {
+      "query": "When did we discuss Should we use PagerDuty or Sentry for container or?",
+      "query_category": "cross_session",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 266,
+      "context_tokens": 66,
+      "retrieval_ms": 0.8327960968017578,
+      "retrieved_ids": [
+        "t00279",
+        "t00875",
+        "t00791",
+        "t00473",
+        "t00483"
+      ],
+      "relevant_ids": [
+        "t01160",
+        "t01159"
+      ]
+    },
+    {
+      "query": "When did we discuss Always use Result types for error handling, not si?",
+      "query_category": "cross_session",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 354,
+      "context_tokens": 88,
+      "retrieval_ms": 0.16736984252929688,
+      "retrieved_ids": [
+        "t00393",
+        "t00477",
+        "t00843",
+        "t00961",
+        "t00743"
+      ],
+      "relevant_ids": [
+        "t01180",
+        "t01179"
+      ]
+    },
+    {
+      "query": "When did we discuss Always use Result types for error handling, not si?",
+      "query_category": "cross_session",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 354,
+      "context_tokens": 88,
+      "retrieval_ms": 2.8383731842041016,
+      "retrieved_ids": [
+        "t00393",
+        "t00477",
+        "t00743",
+        "t00843",
+        "t00961"
+      ],
+      "relevant_ids": [
+        "t01180",
+        "t01179"
+      ]
+    },
+    {
+      "query": "When did we discuss Always use Result types for error handling, not si?",
+      "query_category": "cross_session",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0035762786865234375,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t01180",
+        "t01179"
+      ]
+    },
+    {
+      "query": "When did we discuss Always use Result types for error handling, not si?",
+      "query_category": "cross_session",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 301,
+      "context_tokens": 75,
+      "retrieval_ms": 0.013589859008789062,
+      "retrieved_ids": [
+        "t00627",
+        "t02571",
+        "t00655",
+        "t01729",
+        "t02443"
+      ],
+      "relevant_ids": [
+        "t01180",
+        "t01179"
+      ]
+    },
+    {
+      "query": "When did we discuss Always use Result types for error handling, not si?",
+      "query_category": "cross_session",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 269,
+      "context_tokens": 67,
+      "retrieval_ms": 0.8335113525390625,
+      "retrieved_ids": [
+        "t02239",
+        "t01747",
+        "t00791",
+        "t00473",
+        "t00515"
+      ],
+      "relevant_ids": [
+        "t01180",
+        "t01179"
+      ]
+    },
+    {
+      "query": "When did we discuss How do we set up distributed tracing for inventory?",
+      "query_category": "cross_session",
+      "method": "cosine_topk",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 0.3333333333333333,
+      "context_chars": 291,
+      "context_tokens": 72,
+      "retrieval_ms": 0.16927719116210938,
+      "retrieved_ids": [
+        "t00445",
+        "t02045",
+        "t01191",
+        "t02185",
+        "t01595"
+      ],
+      "relevant_ids": [
+        "t01191",
+        "t01192"
+      ]
+    },
+    {
+      "query": "When did we discuss How do we set up distributed tracing for inventory?",
+      "query_category": "cross_session",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 290,
+      "context_tokens": 72,
+      "retrieval_ms": 2.7599334716796875,
+      "retrieved_ids": [
+        "t00123",
+        "t00159",
+        "t00161",
+        "t00339",
+        "t00445"
+      ],
+      "relevant_ids": [
+        "t01191",
+        "t01192"
+      ]
+    },
+    {
+      "query": "When did we discuss How do we set up distributed tracing for inventory?",
+      "query_category": "cross_session",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0035762786865234375,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t01191",
+        "t01192"
+      ]
+    },
+    {
+      "query": "When did we discuss How do we set up distributed tracing for inventory?",
+      "query_category": "cross_session",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 319,
+      "context_tokens": 79,
+      "retrieval_ms": 0.012874603271484375,
+      "retrieved_ids": [
+        "t00261",
+        "t01577",
+        "t01563",
+        "t02441",
+        "t01917"
+      ],
+      "relevant_ids": [
+        "t01191",
+        "t01192"
+      ]
+    },
+    {
+      "query": "When did we discuss How do we set up distributed tracing for inventory?",
+      "query_category": "cross_session",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 293,
+      "context_tokens": 73,
+      "retrieval_ms": 0.8547306060791016,
+      "retrieved_ids": [
+        "t00001",
+        "t00279",
+        "t01779",
+        "t00671",
+        "t02293"
+      ],
+      "relevant_ids": [
+        "t01191",
+        "t01192"
+      ]
+    },
+    {
+      "query": "When did we discuss The user-service endpoint is getting too complex, ?",
+      "query_category": "cross_session",
+      "method": "cosine_topk",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 1.0,
+      "context_chars": 349,
+      "context_tokens": 87,
+      "retrieval_ms": 0.16736984252929688,
+      "retrieved_ids": [
+        "t01419",
+        "t01411",
+        "t01423",
+        "t01797",
+        "t01409"
+      ],
+      "relevant_ids": [
+        "t01420",
+        "t01419"
+      ]
+    },
+    {
+      "query": "When did we discuss The user-service endpoint is getting too complex, ?",
+      "query_category": "cross_session",
+      "method": "bm25",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 0.3333333333333333,
+      "context_chars": 349,
+      "context_tokens": 87,
+      "retrieval_ms": 2.541065216064453,
+      "retrieved_ids": [
+        "t01409",
+        "t01411",
+        "t01419",
+        "t01423",
+        "t01797"
+      ],
+      "relevant_ids": [
+        "t01420",
+        "t01419"
+      ]
+    },
+    {
+      "query": "When did we discuss The user-service endpoint is getting too complex, ?",
+      "query_category": "cross_session",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.003814697265625,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t01420",
+        "t01419"
+      ]
+    },
+    {
+      "query": "When did we discuss The user-service endpoint is getting too complex, ?",
+      "query_category": "cross_session",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 277,
+      "context_tokens": 69,
+      "retrieval_ms": 0.012874603271484375,
+      "retrieved_ids": [
+        "t02167",
+        "t01029",
+        "t02267",
+        "t00047",
+        "t00469"
+      ],
+      "relevant_ids": [
+        "t01420",
+        "t01419"
+      ]
+    },
+    {
+      "query": "When did we discuss The user-service endpoint is getting too complex, ?",
+      "query_category": "cross_session",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 263,
+      "context_tokens": 65,
+      "retrieval_ms": 0.7603168487548828,
+      "retrieved_ids": [
+        "t00279",
+        "t00001",
+        "t01779",
+        "t01887",
+        "t00439"
+      ],
+      "relevant_ids": [
+        "t01420",
+        "t01419"
+      ]
+    },
+    {
+      "query": "When did we discuss I use Prometheus for profiling. Don't suggest atom?",
+      "query_category": "cross_session",
+      "method": "cosine_topk",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 1.0,
+      "context_chars": 262,
+      "context_tokens": 65,
+      "retrieval_ms": 0.1704692840576172,
+      "retrieved_ids": [
+        "t01483",
+        "t00277",
+        "t01947",
+        "t02363",
+        "t01895"
+      ],
+      "relevant_ids": [
+        "t01483",
+        "t01484"
+      ]
+    },
+    {
+      "query": "When did we discuss I use Prometheus for profiling. Don't suggest atom?",
+      "query_category": "cross_session",
+      "method": "bm25",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.5,
+      "recall_at_5": 0.5,
+      "mrr_score": 0.5,
+      "context_chars": 255,
+      "context_tokens": 63,
+      "retrieval_ms": 2.5396347045898438,
+      "retrieved_ids": [
+        "t00931",
+        "t01483",
+        "t01895",
+        "t00001",
+        "t00221"
+      ],
+      "relevant_ids": [
+        "t01483",
+        "t01484"
+      ]
+    },
+    {
+      "query": "When did we discuss I use Prometheus for profiling. Don't suggest atom?",
+      "query_category": "cross_session",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0035762786865234375,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t01483",
+        "t01484"
+      ]
+    },
+    {
+      "query": "When did we discuss I use Prometheus for profiling. Don't suggest atom?",
+      "query_category": "cross_session",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 282,
+      "context_tokens": 70,
+      "retrieval_ms": 0.012874603271484375,
+      "retrieved_ids": [
+        "t02199",
+        "t01093",
+        "t02625",
+        "t01393",
+        "t00457"
+      ],
+      "relevant_ids": [
+        "t01483",
+        "t01484"
+      ]
+    },
+    {
+      "query": "When did we discuss I use Prometheus for profiling. Don't suggest atom?",
+      "query_category": "cross_session",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 269,
+      "context_tokens": 67,
+      "retrieval_ms": 0.7829666137695312,
+      "retrieved_ids": [
+        "t00275",
+        "t00279",
+        "t00841",
+        "t00037",
+        "t00077"
+      ],
+      "relevant_ids": [
+        "t01483",
+        "t01484"
+      ]
+    },
+    {
+      "query": "What are my coding preferences and conventions?",
+      "query_category": "preference_recall",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 291,
+      "context_tokens": 72,
+      "retrieval_ms": 0.16570091247558594,
+      "retrieved_ids": [
+        "t00205",
+        "t01455",
+        "t02251",
+        "t00481",
+        "t00483"
+      ],
+      "relevant_ids": [
+        "t01891",
+        "t02240",
+        "t00214"
+      ]
+    },
+    {
+      "query": "What are my coding preferences and conventions?",
+      "query_category": "preference_recall",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 294,
+      "context_tokens": 73,
+      "retrieval_ms": 1.5358924865722656,
+      "retrieved_ids": [
+        "t00005",
+        "t00219",
+        "t00437",
+        "t01485",
+        "t02531"
+      ],
+      "relevant_ids": [
+        "t01891",
+        "t02240",
+        "t00214"
+      ]
+    },
+    {
+      "query": "What are my coding preferences and conventions?",
+      "query_category": "preference_recall",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0035762786865234375,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t01891",
+        "t02240",
+        "t00214"
+      ]
+    },
+    {
+      "query": "What are my coding preferences and conventions?",
+      "query_category": "preference_recall",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 313,
+      "context_tokens": 78,
+      "retrieval_ms": 0.012874603271484375,
+      "retrieved_ids": [
+        "t01203",
+        "t01781",
+        "t00647",
+        "t01859",
+        "t00013"
+      ],
+      "relevant_ids": [
+        "t01891",
+        "t02240",
+        "t00214"
+      ]
+    },
+    {
+      "query": "What are my coding preferences and conventions?",
+      "query_category": "preference_recall",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 226,
+      "context_tokens": 56,
+      "retrieval_ms": 0.7803440093994141,
+      "retrieved_ids": [
+        "t00157",
+        "t01339",
+        "t02037",
+        "t00851",
+        "t00155"
+      ],
+      "relevant_ids": [
+        "t01891",
+        "t02240",
+        "t00214"
+      ]
+    },
+    {
+      "query": "Have we encountered NullPointerException before? What was the fix?",
+      "query_category": "failure_pattern",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 361,
+      "context_tokens": 90,
+      "retrieval_ms": 0.16999244689941406,
+      "retrieved_ids": [
+        "t00853",
+        "t02379",
+        "t02669",
+        "t01931",
+        "t01959"
+      ],
+      "relevant_ids": [
+        "t00365",
+        "t00023",
+        "t00193",
+        "t00531",
+        "t00191"
+      ]
+    },
+    {
+      "query": "Have we encountered NullPointerException before? What was the fix?",
+      "query_category": "failure_pattern",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 333,
+      "context_tokens": 83,
+      "retrieval_ms": 2.0029544830322266,
+      "retrieved_ids": [
+        "t00315",
+        "t00317",
+        "t00455",
+        "t00461",
+        "t00717"
+      ],
+      "relevant_ids": [
+        "t00365",
+        "t00023",
+        "t00193",
+        "t00531",
+        "t00191"
+      ]
+    },
+    {
+      "query": "Have we encountered NullPointerException before? What was the fix?",
+      "query_category": "failure_pattern",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.0040531158447265625,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t00365",
+        "t00023",
+        "t00193",
+        "t00531",
+        "t00191"
+      ]
+    },
+    {
+      "query": "Have we encountered NullPointerException before? What was the fix?",
+      "query_category": "failure_pattern",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 282,
+      "context_tokens": 70,
+      "retrieval_ms": 0.013828277587890625,
+      "retrieved_ids": [
+        "t01079",
+        "t02051",
+        "t00731",
+        "t02079",
+        "t00435"
+      ],
+      "relevant_ids": [
+        "t00365",
+        "t00023",
+        "t00193",
+        "t00531",
+        "t00191"
+      ]
+    },
+    {
+      "query": "Have we encountered NullPointerException before? What was the fix?",
+      "query_category": "failure_pattern",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 261,
+      "context_tokens": 65,
+      "retrieval_ms": 0.7646083831787109,
+      "retrieved_ids": [
+        "t00001",
+        "t00279",
+        "t00439",
+        "t02067",
+        "t01779"
+      ],
+      "relevant_ids": [
+        "t00365",
+        "t00023",
+        "t00193",
+        "t00531",
+        "t00191"
+      ]
+    },
+    {
+      "query": "Have we encountered ConnectionTimeout before? What was the fix?",
+      "query_category": "failure_pattern",
+      "method": "cosine_topk",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.2,
+      "recall_at_5": 0.2,
+      "mrr_score": 1.0,
+      "context_chars": 339,
+      "context_tokens": 84,
+      "retrieval_ms": 0.17404556274414062,
+      "retrieved_ids": [
+        "t00329",
+        "t01941",
+        "t02659",
+        "t00587",
+        "t02115"
+      ],
+      "relevant_ids": [
+        "t00331",
+        "t00194",
+        "t00329",
+        "t00024",
+        "t00330"
+      ]
+    },
+    {
+      "query": "Have we encountered ConnectionTimeout before? What was the fix?",
+      "query_category": "failure_pattern",
+      "method": "bm25",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.2,
+      "recall_at_5": 0.2,
+      "mrr_score": 1.0,
+      "context_chars": 323,
+      "context_tokens": 80,
+      "retrieval_ms": 2.0248889923095703,
+      "retrieved_ids": [
+        "t00331",
+        "t00939",
+        "t02389",
+        "t00315",
+        "t00317"
+      ],
+      "relevant_ids": [
+        "t00331",
+        "t00194",
+        "t00329",
+        "t00024",
+        "t00330"
+      ]
+    },
+    {
+      "query": "Have we encountered ConnectionTimeout before? What was the fix?",
+      "query_category": "failure_pattern",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.003814697265625,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t00331",
+        "t00194",
+        "t00329",
+        "t00024",
+        "t00330"
+      ]
+    },
+    {
+      "query": "Have we encountered ConnectionTimeout before? What was the fix?",
+      "query_category": "failure_pattern",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.013589859008789062,
+      "retrieved_ids": [
+        "t02561",
+        "t01223",
+        "t02617",
+        "t02079",
+        "t02495"
+      ],
+      "relevant_ids": [
+        "t00331",
+        "t00194",
+        "t00329",
+        "t00024",
+        "t00330"
+      ]
+    },
+    {
+      "query": "Have we encountered ConnectionTimeout before? What was the fix?",
+      "query_category": "failure_pattern",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 261,
+      "context_tokens": 65,
+      "retrieval_ms": 0.7634162902832031,
+      "retrieved_ids": [
+        "t00279",
+        "t00001",
+        "t00439",
+        "t02067",
+        "t01779"
+      ],
+      "relevant_ids": [
+        "t00331",
+        "t00194",
+        "t00329",
+        "t00024",
+        "t00330"
+      ]
+    },
+    {
+      "query": "Have we encountered OutOfMemoryError before? What was the fix?",
+      "query_category": "failure_pattern",
+      "method": "cosine_topk",
+      "precision_at_3": 0.6666666666666666,
+      "precision_at_5": 0.4,
+      "recall_at_3": 0.4,
+      "recall_at_5": 0.4,
+      "mrr_score": 1.0,
+      "context_chars": 322,
+      "context_tokens": 80,
+      "retrieval_ms": 0.1671314239501953,
+      "retrieved_ids": [
+        "t01003",
+        "t01481",
+        "t00325",
+        "t01815",
+        "t01035"
+      ],
+      "relevant_ids": [
+        "t00532",
+        "t00192",
+        "t00196",
+        "t00325",
+        "t01003"
+      ]
+    },
+    {
+      "query": "Have we encountered OutOfMemoryError before? What was the fix?",
+      "query_category": "failure_pattern",
+      "method": "bm25",
+      "precision_at_3": 0.3333333333333333,
+      "precision_at_5": 0.2,
+      "recall_at_3": 0.2,
+      "recall_at_5": 0.2,
+      "mrr_score": 1.0,
+      "context_chars": 319,
+      "context_tokens": 79,
+      "retrieval_ms": 2.0380020141601562,
+      "retrieved_ids": [
+        "t00325",
+        "t01035",
+        "t01399",
+        "t01815",
+        "t00315"
+      ],
+      "relevant_ids": [
+        "t00532",
+        "t00192",
+        "t00196",
+        "t00325",
+        "t01003"
+      ]
+    },
+    {
+      "query": "Have we encountered OutOfMemoryError before? What was the fix?",
+      "query_category": "failure_pattern",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.003814697265625,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t00532",
+        "t00192",
+        "t00196",
+        "t00325",
+        "t01003"
+      ]
+    },
+    {
+      "query": "Have we encountered OutOfMemoryError before? What was the fix?",
+      "query_category": "failure_pattern",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 360,
+      "context_tokens": 90,
+      "retrieval_ms": 0.0133514404296875,
+      "retrieved_ids": [
+        "t00815",
+        "t00627",
+        "t01531",
+        "t00661",
+        "t02209"
+      ],
+      "relevant_ids": [
+        "t00532",
+        "t00192",
+        "t00196",
+        "t00325",
+        "t01003"
+      ]
+    },
+    {
+      "query": "Have we encountered OutOfMemoryError before? What was the fix?",
+      "query_category": "failure_pattern",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 255,
+      "context_tokens": 63,
+      "retrieval_ms": 0.7572174072265625,
+      "retrieved_ids": [
+        "t00275",
+        "t00483",
+        "t00001",
+        "t00841",
+        "t00439"
+      ],
+      "relevant_ids": [
+        "t00532",
+        "t00192",
+        "t00196",
+        "t00325",
+        "t01003"
+      ]
+    },
+    {
+      "query": "What architectural decisions have we made and why?",
+      "query_category": "decision_recall",
+      "method": "cosine_topk",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 333,
+      "context_tokens": 83,
+      "retrieval_ms": 0.164031982421875,
+      "retrieved_ids": [
+        "t01089",
+        "t02489",
+        "t02687",
+        "t00167",
+        "t01385"
+      ],
+      "relevant_ids": [
+        "t00432",
+        "t01274",
+        "t01258",
+        "t02133"
+      ]
+    },
+    {
+      "query": "What architectural decisions have we made and why?",
+      "query_category": "decision_recall",
+      "method": "bm25",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 347,
+      "context_tokens": 86,
+      "retrieval_ms": 1.54876708984375,
+      "retrieved_ids": [
+        "t00253",
+        "t00255",
+        "t00629",
+        "t00633",
+        "t00685"
+      ],
+      "relevant_ids": [
+        "t00432",
+        "t01274",
+        "t01258",
+        "t02133"
+      ]
+    },
+    {
+      "query": "What architectural decisions have we made and why?",
+      "query_category": "decision_recall",
+      "method": "recency",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 279,
+      "context_tokens": 69,
+      "retrieval_ms": 0.003814697265625,
+      "retrieved_ids": [
+        "t02707",
+        "t02705",
+        "t02703",
+        "t02701",
+        "t02699"
+      ],
+      "relevant_ids": [
+        "t00432",
+        "t01274",
+        "t01258",
+        "t02133"
+      ]
+    },
+    {
+      "query": "What architectural decisions have we made and why?",
+      "query_category": "decision_recall",
+      "method": "random",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 277,
+      "context_tokens": 69,
+      "retrieval_ms": 0.014066696166992188,
+      "retrieved_ids": [
+        "t02173",
+        "t00003",
+        "t02453",
+        "t01327",
+        "t02001"
+      ],
+      "relevant_ids": [
+        "t00432",
+        "t01274",
+        "t01258",
+        "t02133"
+      ]
+    },
+    {
+      "query": "What architectural decisions have we made and why?",
+      "query_category": "decision_recall",
+      "method": "cortex_net",
+      "precision_at_3": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "mrr_score": 0.0,
+      "context_chars": 269,
+      "context_tokens": 67,
+      "retrieval_ms": 0.7684230804443359,
+      "retrieved_ids": [
+        "t00397",
+        "t00515",
+        "t00731",
+        "t01389",
+        "t00965"
+      ],
+      "relevant_ids": [
+        "t00432",
+        "t01274",
+        "t01258",
+        "t02133"
+      ]
+    }
+  ],
+  "summaries": {
+    "cosine_topk": {
+      "method": "cosine_topk",
+      "avg_precision_at_3": 0.1568627450980392,
+      "avg_precision_at_5": 0.1,
+      "avg_recall_at_3": 0.2088235294117647,
+      "avg_recall_at_5": 0.2147058823529412,
+      "avg_mrr": 0.38480392156862747,
+      "avg_context_chars": 310,
+      "avg_context_tokens": 77,
+      "avg_retrieval_ms": 0.168000950532801,
+      "total_queries": 34,
+      "by_category": {
+        "topic_recall": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.014285714285714287,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.014285714285714287,
+          "mrr": 0.017857142857142856,
+          "count": 14
+        },
+        "cross_session": {
+          "precision_at_3": 0.28888888888888886,
+          "precision_at_5": 0.17333333333333334,
+          "recall_at_3": 0.43333333333333335,
+          "recall_at_5": 0.43333333333333335,
+          "mrr": 0.7222222222222222,
+          "count": 15
+        },
+        "preference_recall": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.0,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.0,
+          "mrr": 0.0,
+          "count": 1
+        },
+        "failure_pattern": {
+          "precision_at_3": 0.3333333333333333,
+          "precision_at_5": 0.20000000000000004,
+          "recall_at_3": 0.20000000000000004,
+          "recall_at_5": 0.20000000000000004,
+          "mrr": 0.6666666666666666,
+          "count": 3
+        },
+        "decision_recall": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.0,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.0,
+          "mrr": 0.0,
+          "count": 1
+        }
+      }
+    },
+    "bm25": {
+      "method": "bm25",
+      "avg_precision_at_3": 0.1372549019607843,
+      "avg_precision_at_5": 0.08823529411764708,
+      "avg_recall_at_3": 0.18823529411764706,
+      "avg_recall_at_5": 0.19411764705882353,
+      "avg_mrr": 0.3294117647058824,
+      "avg_context_chars": 327,
+      "avg_context_tokens": 81,
+      "avg_retrieval_ms": 2.042854533475988,
+      "total_queries": 34,
+      "by_category": {
+        "topic_recall": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.014285714285714287,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.014285714285714287,
+          "mrr": 0.014285714285714287,
+          "count": 14
+        },
+        "cross_session": {
+          "precision_at_3": 0.26666666666666666,
+          "precision_at_5": 0.16,
+          "recall_at_3": 0.4,
+          "recall_at_5": 0.4,
+          "mrr": 0.6,
+          "count": 15
+        },
+        "preference_recall": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.0,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.0,
+          "mrr": 0.0,
+          "count": 1
+        },
+        "failure_pattern": {
+          "precision_at_3": 0.2222222222222222,
+          "precision_at_5": 0.13333333333333333,
+          "recall_at_3": 0.13333333333333333,
+          "recall_at_5": 0.13333333333333333,
+          "mrr": 0.6666666666666666,
+          "count": 3
+        },
+        "decision_recall": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.0,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.0,
+          "mrr": 0.0,
+          "count": 1
+        }
+      }
+    },
+    "recency": {
+      "method": "recency",
+      "avg_precision_at_3": 0.0,
+      "avg_precision_at_5": 0.0,
+      "avg_recall_at_3": 0.0,
+      "avg_recall_at_5": 0.0,
+      "avg_mrr": 0.0,
+      "avg_context_chars": 279,
+      "avg_context_tokens": 69,
+      "avg_retrieval_ms": 0.003681463353774127,
+      "total_queries": 34,
+      "by_category": {
+        "topic_recall": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.0,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.0,
+          "mrr": 0.0,
+          "count": 14
+        },
+        "cross_session": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.0,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.0,
+          "mrr": 0.0,
+          "count": 15
+        },
+        "preference_recall": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.0,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.0,
+          "mrr": 0.0,
+          "count": 1
+        },
+        "failure_pattern": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.0,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.0,
+          "mrr": 0.0,
+          "count": 3
+        },
+        "decision_recall": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.0,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.0,
+          "mrr": 0.0,
+          "count": 1
+        }
+      }
+    },
+    "random": {
+      "method": "random",
+      "avg_precision_at_3": 0.00980392156862745,
+      "avg_precision_at_5": 0.0058823529411764705,
+      "avg_recall_at_3": 0.0058823529411764705,
+      "avg_recall_at_5": 0.0058823529411764705,
+      "avg_mrr": 0.029411764705882353,
+      "avg_context_chars": 303,
+      "avg_context_tokens": 75,
+      "avg_retrieval_ms": 0.014038646922392003,
+      "total_queries": 34,
+      "by_category": {
+        "topic_recall": {
+          "precision_at_3": 0.023809523809523808,
+          "precision_at_5": 0.014285714285714287,
+          "recall_at_3": 0.014285714285714287,
+          "recall_at_5": 0.014285714285714287,
+          "mrr": 0.07142857142857142,
+          "count": 14
+        },
+        "cross_session": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.0,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.0,
+          "mrr": 0.0,
+          "count": 15
+        },
+        "preference_recall": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.0,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.0,
+          "mrr": 0.0,
+          "count": 1
+        },
+        "failure_pattern": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.0,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.0,
+          "mrr": 0.0,
+          "count": 3
+        },
+        "decision_recall": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.0,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.0,
+          "mrr": 0.0,
+          "count": 1
+        }
+      }
+    },
+    "cortex_net": {
+      "method": "cortex_net",
+      "avg_precision_at_3": 0.00980392156862745,
+      "avg_precision_at_5": 0.0058823529411764705,
+      "avg_recall_at_3": 0.0058823529411764705,
+      "avg_recall_at_5": 0.0058823529411764705,
+      "avg_mrr": 0.00980392156862745,
+      "avg_context_chars": 271,
+      "avg_context_tokens": 67,
+      "avg_retrieval_ms": 0.8110228706808651,
+      "total_queries": 34,
+      "by_category": {
+        "topic_recall": {
+          "precision_at_3": 0.023809523809523808,
+          "precision_at_5": 0.014285714285714287,
+          "recall_at_3": 0.014285714285714287,
+          "recall_at_5": 0.014285714285714287,
+          "mrr": 0.023809523809523808,
+          "count": 14
+        },
+        "cross_session": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.0,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.0,
+          "mrr": 0.0,
+          "count": 15
+        },
+        "preference_recall": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.0,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.0,
+          "mrr": 0.0,
+          "count": 1
+        },
+        "failure_pattern": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.0,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.0,
+          "mrr": 0.0,
+          "count": 3
+        },
+        "decision_recall": {
+          "precision_at_3": 0.0,
+          "precision_at_5": 0.0,
+          "recall_at_3": 0.0,
+          "recall_at_5": 0.0,
+          "mrr": 0.0,
+          "count": 1
+        }
+      }
+    }
+  },
+  "history_stats": {
+    "total_turns": 2708,
+    "user_turns": 1354,
+    "total_sessions": 262,
+    "months": 6,
+    "total_queries": 34,
+    "k": 5
+  },
+  "timestamp": 1771542273.9556465
+}
