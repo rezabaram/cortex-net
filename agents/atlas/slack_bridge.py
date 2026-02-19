@@ -8,6 +8,7 @@ Runs as a persistent process (systemd service).
 import json
 import logging
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -107,6 +108,54 @@ def create_agent() -> CortexAgent:
     return agent
 
 
+def md_to_slack(text: str) -> str:
+    """Convert Markdown to Slack mrkdwn format."""
+    # Code blocks: ```lang\n...\n``` → ```\n...\n```  (Slack ignores lang)
+    text = re.sub(r'```\w*\n', '```\n', text)
+
+    # Headers: ### Header → *Header*
+    text = re.sub(r'^#{1,6}\s+(.+)$', r'*\1*', text, flags=re.MULTILINE)
+
+    # Bold: **text** → *text*
+    text = re.sub(r'\*\*(.+?)\*\*', r'*\1*', text)
+
+    # Italic: _text_ stays the same in Slack
+    # But MD single *text* for italic conflicts with Slack bold
+    # Leave as-is since we converted ** to * above
+
+    # Strikethrough: ~~text~~ → ~text~
+    text = re.sub(r'~~(.+?)~~', r'~\1~', text)
+
+    # Links: [text](url) → <url|text>
+    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<\2|\1>', text)
+
+    # Inline code: `code` stays the same
+
+    # Unordered lists: - item → • item
+    text = re.sub(r'^(\s*)[-*]\s+', r'\1• ', text, flags=re.MULTILINE)
+
+    # Ordered lists: 1. item → 1. item (Slack handles these ok)
+
+    # Horizontal rules: --- → ───────
+    text = re.sub(r'^-{3,}$', '───────────────', text, flags=re.MULTILINE)
+
+    # Tables: convert to readable format
+    lines = text.split('\n')
+    result = []
+    for line in lines:
+        # Skip separator rows (|---|---|)
+        if re.match(r'^\|[\s\-:|]+\|$', line):
+            continue
+        # Table rows: | a | b | → a  |  b
+        if line.startswith('|') and line.endswith('|'):
+            cells = [c.strip() for c in line[1:-1].split('|')]
+            result.append('  '.join(cells))
+        else:
+            result.append(line)
+
+    return '\n'.join(result)
+
+
 def run():
     """Main loop: poll for messages, respond via Atlas."""
     global BOT_USER_ID
@@ -160,8 +209,9 @@ def run():
                 try:
                     response = agent.chat(text)
                     # Strip <think>...</think> tags from reasoning models
-                    import re
                     response = re.sub(r'<think>.*?</think>\s*', '', response, flags=re.DOTALL).strip()
+                    # Convert markdown to Slack mrkdwn
+                    response = md_to_slack(response)
                     post_message(CHANNEL_ID, response, thread_ts=ts)
                     log.info(f"Responded ({len(response)} chars)")
                 except Exception as e:
