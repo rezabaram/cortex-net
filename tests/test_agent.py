@@ -8,18 +8,17 @@ from cortex_net.agent import CortexAgent, AgentConfig, MemoryStore
 
 
 @pytest.fixture
-def mock_anthropic():
-    """Mock the Anthropic client."""
-    with patch("cortex_net.agent.anthropic") as mock:
-        # Mock response
+def mock_openai():
+    """Mock the OpenAI client."""
+    with patch("cortex_net.agent.OpenAI") as mock:
         mock_response = MagicMock()
-        mock_response.content = [MagicMock(text="Here's your answer about deployment.")]
-        mock.Anthropic.return_value.messages.create.return_value = mock_response
+        mock_response.choices = [MagicMock(message=MagicMock(content="Here's your answer about deployment."))]
+        mock.return_value.chat.completions.create.return_value = mock_response
         yield mock
 
 
 @pytest.fixture
-def agent(tmp_path, mock_anthropic):
+def agent(tmp_path, mock_openai):
     config = AgentConfig(
         state_dir=str(tmp_path / "state"),
         model="claude-sonnet-4-20250514",
@@ -46,21 +45,21 @@ class TestAgent:
         ])
         assert len(agent.memory_store) == 2
 
-    def test_memories_used_in_prompt(self, agent, mock_anthropic):
+    def test_memories_used_in_prompt(self, agent, mock_openai):
         agent.add_memories(["We use Kubernetes for deployments"])
         agent.chat("How should I deploy?")
 
-        # Check that the Claude call included memories in system prompt
-        call_args = mock_anthropic.Anthropic.return_value.messages.create.call_args
-        system = call_args.kwargs.get("system", "")
+        call_args = mock_openai.return_value.chat.completions.create.call_args
+        messages = call_args.kwargs.get("messages", [])
+        system = messages[0]["content"] if messages else ""
         assert "Kubernetes" in system
 
-    def test_strategy_in_prompt(self, agent, mock_anthropic):
+    def test_strategy_in_prompt(self, agent, mock_openai):
         agent.chat("Help me brainstorm names for our tool")
 
-        call_args = mock_anthropic.Anthropic.return_value.messages.create.call_args
-        system = call_args.kwargs.get("system", "")
-        # Should have some strategy framing
+        call_args = mock_openai.return_value.chat.completions.create.call_args
+        messages = call_args.kwargs.get("messages", [])
+        system = messages[0]["content"] if messages else ""
         assert "Approach:" in system
 
     def test_feedback_loop(self, agent):
@@ -71,7 +70,7 @@ class TestAgent:
         if agent.online_trainer:
             assert agent.online_trainer.buffer_size >= 1
 
-    def test_save_and_load(self, tmp_path, mock_anthropic):
+    def test_save_and_load(self, tmp_path, mock_openai):
         config = AgentConfig(
             state_dir=str(tmp_path / "state"),
             online_learning=False,
@@ -93,11 +92,11 @@ class TestAgent:
         assert "memories" in stats
         assert "gate_trained" in stats
 
-    def test_auto_memorize(self, agent, mock_anthropic):
+    def test_auto_memorize(self, agent, mock_openai):
         # Mock a long response so assistant side gets memorized
         mock_response = MagicMock()
-        mock_response.content = [MagicMock(text="Here's a detailed explanation " * 10)]
-        mock_anthropic.Anthropic.return_value.messages.create.return_value = mock_response
+        mock_response.choices = [MagicMock(message=MagicMock(content="Here's a detailed explanation " * 10))]
+        mock_openai.return_value.chat.completions.create.return_value = mock_response
 
         initial = len(agent.memory_store)
         # Long message triggers user-side memorization, long response triggers assistant-side

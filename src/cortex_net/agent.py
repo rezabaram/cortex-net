@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-import anthropic
+from openai import OpenAI
 import torch
 from sentence_transformers import SentenceTransformer
 
@@ -49,8 +49,9 @@ class ConversationTurn:
 class AgentConfig:
     """Configuration for the live agent."""
 
-    # Model
-    model: str = "claude-sonnet-4-20250514"
+    # Model (OpenAI-compatible API)
+    model: str = "MiniMax-M1"
+    base_url: str = "https://api.minimax.io/v1"
     max_tokens: int = 1024
 
     # cortex-net dimensions
@@ -156,8 +157,11 @@ class CortexAgent:
         self.config = config or AgentConfig()
         self.device = "cpu"
 
-        # Claude client
-        self.client = anthropic.Anthropic(api_key=api_key)
+        # LLM client (OpenAI-compatible)
+        self.client = OpenAI(
+            api_key=api_key or os.environ.get("LLM_API_KEY", ""),
+            base_url=self.config.base_url,
+        )
 
         # Text encoder
         self.text_encoder = SentenceTransformer(
@@ -329,14 +333,14 @@ class CortexAgent:
             messages.append({"role": turn.role, "content": turn.content})
         messages.append({"role": "user", "content": message})
 
-        # Step 8: Call Claude
-        response = self.client.messages.create(
+        # Step 8: Call LLM (OpenAI-compatible)
+        all_messages = [{"role": "system", "content": system_prompt}] + messages
+        response = self.client.chat.completions.create(
             model=self.config.model,
             max_tokens=self.config.max_tokens,
-            system=system_prompt,
-            messages=messages,
+            messages=all_messages,
         )
-        assistant_text = response.content[0].text
+        assistant_text = response.choices[0].message.content
 
         # Step 9: Update conversation history
         self.history.append(ConversationTurn(role="user", content=message, timestamp=time.time()))
