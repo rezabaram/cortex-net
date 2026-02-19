@@ -24,4 +24,5 @@ The result: an agent that gets meaningfully better at its job over time, without
 
 ## Status
 
-✅ **Phase 1 Complete** — Memory Gate proven. Learned scorer beats cosine similarity by 67% on real text benchmarks. See [Implementation Plan](implementation.md) for details.
+✅ **Phase 1 Complete** — Memory Gate proven (+67% vs cosine on real text).
+⏳ **Phase 2 In Progress** — Situation Encoder built and benchmarked (+50% on contextual retrieval). Wiring into pipeline next. See [Implementation Plan](implementation.md) for details.

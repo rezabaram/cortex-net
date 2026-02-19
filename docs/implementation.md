@@ -74,27 +74,49 @@ Gate wins where cosine fails: distractor rejection, past failure recall, user pr
 
 ---
 
-## Phase 2: Situation Encoder — Weeks 4-6 ← NEXT
+## Phase 2: Situation Encoder — Weeks 4-6 ⏳ IN PROGRESS
 
 **Goal:** Build a shared situation representation that all components can use.
 
-### Week 4: Feature Extraction
-- [ ] Define situation features: message text, conversation history, metadata (time, user, channel, task type)
-- [ ] Build feature extraction pipeline
-- [ ] Tokenization and embedding strategy for mixed-type inputs
+### Week 4: Feature Extraction ✅
+- [x] Define situation features: message text, conversation history, metadata (hour, day, conversation length, message length, time since last, group chat)
+- [x] `extract_metadata_features()`: fixed-size numeric vector, all normalized to [0,1]
+- [x] `SituationFeatures` dataclass: raw features with optional pre-computed embeddings
 
-### Week 5: Encoder Architecture
-- [ ] Implement 2-layer transformer encoder (or MLP baseline)
-- [ ] Train on interaction logs with contrastive objective: similar situations should have similar embeddings
-- [ ] Evaluate embedding quality: do similar situations cluster?
+### Week 5: Encoder Architecture ✅
+- [x] 3-layer MLP encoder (not transformer — MLP sufficient for this input structure)
+- [x] Fuses: message_embedding + history_embedding + metadata → L2-normalized output
+- [x] LayerNorm + Dropout for stable training
+- [x] NT-Xent contrastive loss (SimCLR-style) for clustering similar situations
+- [x] `encode_situation()` high-level API from raw SituationFeatures
+- [x] Contrastive training test confirms: encoder learns to cluster same-type situations
 
-### Week 6: Integration
-- [ ] Replace Memory Gate's raw input with Situation Encoder output
-- [ ] Measure: does the shared encoder improve Memory Gate performance?
-- [ ] Freeze or fine-tune decision based on results
+### Week 6: Integration ⏳
+- [x] Joint training: Situation Encoder + Memory Gate trained together on contextual scenarios
+- [x] Contextual benchmark: same query, different context → different correct memories
+- [ ] Wire Situation Encoder into `RetrievalPipeline` as the default path
+- [ ] Measure end-to-end improvement on Phase 1 benchmark scenarios
 - [ ] Document architecture decisions
 
-**Exit criteria:** Situation Encoder produces meaningful embeddings where similar situations cluster together, and improves Memory Gate performance when used as input.
+### Contextual Benchmark Results
+
+| Scenario | Encoder P@2 | Raw Text P@2 | Winner |
+|----------|------------|-------------|--------|
+| Status check (standup vs incident) | **0.75** | 0.50 | Encoder |
+| Help request (new vs experienced) | 0.50 | 0.50 | Tie |
+| Quick vs deep (DM vs group) | **1.00** | 0.50 | Encoder |
+| **Average** | **0.750** | **0.500** | **+50%** |
+
+### What Was Built
+
+| Module | File | Tests | Purpose |
+|--------|------|-------|---------|
+| Situation Encoder | `situation_encoder.py` | 15 | MLP fusion, metadata extraction, contrastive loss |
+| Contextual Benchmark | `situation_benchmark.py` | 2 | Context-dependent scenarios, joint training |
+| **Phase 2 total** | **2 modules** | **17** | |
+| **Project total** | **9 modules** | **62** | **All passing** |
+
+**Exit criteria:** Situation Encoder produces meaningful embeddings where similar situations cluster together ✅, and improves Memory Gate performance when used as input ✅ (+50% on contextual retrieval). Remaining: wire into RetrievalPipeline.
 
 ---
 
