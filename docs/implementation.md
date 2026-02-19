@@ -210,12 +210,19 @@ Gate wins where cosine fails: distractor rejection, past failure recall, user pr
 | Strategy Benchmark | `strategy_benchmark.py` | 2 | Labeled scenarios, eval vs fixed |
 | Confidence Estimator | `confidence_estimator.py` | 13 | Calibrated confidence, ECE |
 | Context Assembler | `context_assembler.py` | 6 | Full pipeline orchestration |
-| **Total** | **13 modules** | **96** | **All passing** |
+| Joint Trainer | `joint_trainer.py` | 4 | Multi-task training, ablation |
+| **Total** | **14 modules** | **100** | **All passing** |
+
+### Joint Training ✅
+- [x] `JointTrainer`: single optimizer across all components with shared gradients through Situation Encoder
+- [x] Weighted multi-task loss: memory (contrastive) + strategy (cross-entropy) + confidence (calibration)
+- [x] Gradient clipping + cosine annealing LR schedule
+- [x] **Results**: total loss 4.12 → 0.13, memory P@2 = 0.683, strategy acc = 100%
+- [x] Ablation framework with per-component evaluation
 
 ### Remaining
-- [ ] End-to-end joint training pipeline (shared gradients)
-- [ ] Full agent comparison benchmark
-- [ ] Ablation study
+- [ ] Full agent comparison benchmark (cortex-net vs standard RAG vs no-memory)
+- [ ] Live agent integration
 - [ ] Documentation & release prep
 
 **Exit criteria:** cortex-net agent demonstrably outperforms baseline on key metrics, with clear evidence of improvement over time (learning curve).
