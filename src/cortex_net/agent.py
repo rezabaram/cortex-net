@@ -460,9 +460,11 @@ class CortexAgent:
                     import logging
                     logging.getLogger("cortex-agent").warning(f"API rejected tool call, retrying without: {api_err}")
                     # Remove the last assistant + tool messages
-                    while all_messages and all_messages[-1].get("role") in ("tool",):
+                    def _get_role(msg):
+                        return msg.get("role") if isinstance(msg, dict) else getattr(msg, "role", None)
+                    while all_messages and _get_role(all_messages[-1]) == "tool":
                         all_messages.pop()
-                    if all_messages and hasattr(all_messages[-1], 'tool_calls'):
+                    if all_messages and _get_role(all_messages[-1]) == "assistant":
                         all_messages.pop()
                     all_messages.append({"role": "user", "content": "(tool call failed, please respond without tools)"})
                     call_kwargs["messages"] = all_messages
