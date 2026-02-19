@@ -2,177 +2,270 @@
 
 ## The Context Assembly Network
 
-The core of cortex-net is a **Context Assembly Network (CAN)** — a set of small, trainable neural components that learn to compose the optimal context window for any given situation.
+cortex-net is a **Context Assembly Network (CAN)** — small, trainable neural components that learn to compose the optimal context window for a frozen LLM.
 
 ```
-Input Situation → [Trainable Components] → Assembled Context → LLM → Action → Outcome
-                                                                          ↓
-                                                                   Outcome Signal
-                                                                          ↓
-                                                                 Update Components
+Query + History + Metadata
+        ↓
+  Situation Encoder (MLP, 858K params)
+        ↓ situation embedding (384-dim)
+        ├──→ Memory Gate (bilinear, 147K) ──→ relevant memories
+        ├──→ Strategy Selector (MLP, 51K) ──→ approach profile
+        └──→ Confidence Estimator (MLP, 50K) → proceed/hedge/escalate
+                    ↓
+            Assembled Context → LLM → Response
+                                        ↓
+                                  User Reaction
+                                        ↓
+                                Feedback Collector
+                                        ↓
+                              Online Trainer (replay buffer)
+                                        ↓
+                              Update all components
 ```
 
-The LLM remains frozen. It does what it's good at: reasoning, generation, tool use. The trainable components learn *what to show it* so it can do its best work.
+**Total: ~1.1M trainable parameters.** The LLM stays frozen.
 
-## The Four Components
+---
+
+## Components
 
 ### 1. Situation Encoder
 
-**What it does:** Builds a dense vector representation of "where am I right now?"
+Fuses three input streams into a single situation embedding that all downstream components share.
 
-**Architecture:** 2-layer transformer or MLP
+**Architecture:** 2-layer MLP with ReLU, L2-normalized output.
 
-**Inputs:**
-- Current message
-- Recent conversation history
-- Metadata: time of day, channel, user identity, task type, conversation length
+```
+Input: concat(text_emb, history_emb, metadata_features) → (384 + 384 + 8 = 776-dim)
+Hidden: Linear(776, 512) → ReLU → Dropout
+Output: Linear(512, 384) → L2 normalize
+```
 
-**Output:** A situation embedding vector (same dimension as text embeddings, e.g., 384-dim). Using the same dimension as the memory embeddings keeps cosine fallback working and allows identity initialization of the Memory Gate's bilinear matrix.
+**Metadata features** (8-dim): hour of day, day of week, is weekend, message length (log-scaled), history length (log-scaled), conversation length (log-scaled), question mark present, exclamation present.
 
-**Why it matters:** Every other component needs a shared understanding of the current situation. The Situation Encoder provides this as a learned representation, not a hand-crafted feature vector.
+**Text embeddings:** sentence-transformers `all-MiniLM-L6-v2` (384-dim). Same model for query, history, and memories.
+
+**Training:** NT-Xent contrastive loss clusters similar situations together. Also receives gradients from all three downstream components during joint training.
+
+**Key decision:** Unified dimensions — `situation_dim = text_dim = 384`. This keeps cosine fallback working for the Memory Gate and allows identity initialization of the bilinear matrix.
 
 ---
 
 ### 2. Memory Gate
 
-**What it does:** Learns which stored memories are actually relevant to the current situation. Replaces naive cosine similarity with a trained relevance scorer.
+Replaces cosine similarity with a trained relevance scorer.
 
-**Architecture:** Bilinear scoring function
+**Architecture:** Bilinear scoring function.
 
 ```
-relevance(situation, memory) = situation · W · memory
+score(situation, memory) = situation @ W @ memory.T
 ```
 
-Where `W` is a learned weight matrix.
+Where `W` is a (384 × 384) learned weight matrix.
 
-**Inputs:**
-- Situation embedding (from Situation Encoder)
-- Candidate memory embeddings (from vector store)
+**Initialization:** `W = I` (identity matrix). This means an untrained Memory Gate behaves identically to cosine similarity — smooth cold start with no performance cliff.
 
-**Output:** Relevance score per memory → top-k selection
+**Selection:** Scores all candidate memories, returns top-k with scores.
 
-**Training signal:** Did retrieving this memory lead to a better outcome? Measured by:
-- Was the memory actually referenced in the response?
-- Did the user confirm the information was helpful?
-- Did the interaction succeed without correction?
+**Training:** Contrastive loss — push relevant memories' scores above irrelevant ones with a margin.
 
-**Why it matters:** This is the single highest-leverage component. Every RAG system in the world uses cosine similarity. A learned memory gate that understands *contextual* relevance — not just semantic similarity — would be a meaningful advance.
+```python
+loss = max(0, margin - pos_score + neg_score)  # per positive/negative pair
+```
+
+**Result:** +67% precision over cosine similarity (P@3 = 0.667 vs 0.400 on 5 real-text scenarios). Wins especially on distractor rejection and contextual relevance.
 
 ---
 
 ### 3. Strategy Selector
 
-**What it does:** Learns which approach to take for different situations.
+Learns which approach works for which situation from 10 strategy profiles.
 
-**Architecture:** Linear classification head + softmax over ~10-20 strategy profiles
+**Architecture:** 2-layer MLP classifier with softmax.
 
-**What's a strategy profile?** A combination of:
-- Prompt framing (detailed analysis vs. quick answer vs. clarifying question)
-- Tool permissions (research tools, code execution, none)
-- Reasoning style (step-by-step vs. direct vs. exploratory)
-- Response format (concise vs. thorough vs. structured)
+```
+Input: situation embedding (384-dim)
+Hidden: Linear(384, 128) → ReLU → Dropout
+Output: Linear(128, 10) → softmax → strategy probabilities
+```
 
-**Example strategies:**
+**10 strategies:** `deep_research`, `quick_answer`, `clarify_first`, `proactive_suggest`, `hedge_escalate`, `step_by_step`, `creative`, `code_assist`, `summarize`, `empathize`.
 
-| Strategy | When | Framing |
-|----------|------|---------|
-| Deep Research | Complex factual question | "Think step by step, cite sources" |
-| Quick Answer | Simple known question | "Be concise and direct" |
-| Clarify First | Ambiguous request | "Ask one clarifying question" |
-| Proactive Suggest | Pattern detected | "Surface the insight, suggest action" |
-| Hedge & Escalate | Low confidence | "State uncertainty, offer alternatives" |
+Each strategy is a `StrategyProfile` dataclass with: id, name, description, system prompt additions, and parameter overrides (temperature, max tokens).
 
-**Training signal:** Which strategy led to task success in similar situations.
+**Exploration:** Epsilon-greedy with temperature-scaled softmax. Epsilon decays over time so the system explores early and exploits later.
 
-**Why it matters:** Today, agents use the same approach for every situation. A human expert naturally shifts between modes — careful analysis, quick recall, asking questions, suggesting proactively. The Strategy Selector gives agents this flexibility, *learned* from experience.
+**Diversity tracking:** Normalized entropy of strategy usage history. Target: ≥5 strategies used regularly (not collapsing to always picking the same one).
+
+**Training:** Cross-entropy loss on labeled strategy-situation pairs.
 
 ---
 
 ### 4. Confidence Estimator
 
-**What it does:** Predicts how confident the system should be in its current context and approach.
+Predicts whether the assembled context is sufficient for a good response.
 
-**Architecture:** 2-layer MLP → scalar output [0, 1]
+**Architecture:** 2-layer MLP → sigmoid.
 
-**Inputs:**
-- Situation embedding
-- Summary of assembled context (how many relevant memories, strategy confidence, etc.)
+```
+Input: concat(situation_emb, context_summary) → (384 + 4 = 388-dim)
+Hidden: Linear(388, 64) → ReLU → Dropout
+Output: Linear(64, 1) → sigmoid → confidence ∈ [0, 1]
+```
 
-**Output:** Predicted confidence score
+**Context summary** (4-dim): top memory score, mean memory score, number of memories retrieved, strategy confidence.
 
-**Behavior at different levels:**
-- **High confidence (>0.8):** Proceed normally
-- **Medium confidence (0.4-0.8):** Include caveats, offer to dig deeper
-- **Low confidence (<0.4):** Ask for clarification, escalate, or explicitly state uncertainty
+**Behavioral thresholds:**
+- **≥ 0.8:** Proceed normally
+- **0.4 – 0.8:** Hedge — include caveats, offer to dig deeper
+- **< 0.4:** Escalate — ask for clarification, state uncertainty
 
-**Training signal:** Calibration against actual outcomes. The estimator should be well-calibrated: when it says 70% confident, it should be right ~70% of the time.
+**Training:** Calibration loss = BCE + soft ECE (Expected Calibration Error) penalty.
 
-**Why it matters:** Current agents have no metacognition. They state wrong answers with the same confidence as right ones. A trained confidence estimator means the agent *knows when it doesn't know* — the foundation of trustworthiness.
+```python
+loss = BCE(predicted, actual) + λ * soft_ECE(predicted, actual)
+```
+
+**Result:** ECE = 0.0099 (target was < 0.1). Easy scenarios → confidence ≈ 0.99, hard scenarios → confidence ≈ 0.01.
 
 ---
 
-## Parameter Sharing
+## Context Assembly
 
-All four components share the Situation Encoder's output. This means:
-- The situation representation is trained by all downstream signals
-- Total trainable parameters stay small (~1-10M)
-- Components benefit from each other's learning
+The `ContextAssembler` orchestrates all four components:
 
+```python
+assembler = ContextAssembler(state_dir="./state")
+
+result = assembler.assemble(
+    query="How should I deploy?",
+    memories=["We use K8s...", "Last deploy caused outage...", ...],
+    k=3,
+    metadata={"hour_of_day": 10},
+    history=["Tests are passing"],
+)
+
+# result.selected_memories → top-k relevant memories
+# result.strategy          → chosen StrategyProfile
+# result.confidence        → calibrated confidence score
+# result.prompt_prefix     → LLM-ready prompt with all of the above
 ```
-                    ┌→ Memory Gate ──────────────┐
-                    │                             │
-Situation Encoder ──┼→ Strategy Selector ─────────┼→ Context Assembly → LLM
-                    │                             │
-                    └→ Confidence Estimator ──────┘
+
+The `prompt_prefix` assembles: selected memories as context, strategy framing (system prompt additions), and confidence-appropriate hedging language.
+
+---
+
+## Training
+
+### Joint Training
+
+All four components train together with shared gradients through the Situation Encoder.
+
+```python
+trainer = JointTrainer(encoder, gate, selector, estimator, registry)
+metrics = trainer.train(samples, epochs=100)
 ```
 
-## Training Signals
+**Multi-task loss:**
+```
+L_total = w₁·L_memory + w₂·L_strategy + w₃·L_confidence
+```
 
-The system learns from three types of signal:
+Default weights: memory=1.0, strategy=1.0, confidence=0.5.
 
-### Explicit Feedback
-- User thumbs up/down
-- Direct corrections ("that's wrong, actually...")
-- Explicit preference statements
+**Optimization:** Adam optimizer, cosine annealing LR schedule, gradient clipping (max_norm=1.0).
 
-### Implicit Feedback
-- Follow-up clarification needed → retrieved context was insufficient
-- Task completed without errors → approach was right
-- User said "thanks" / moved on → probably satisfied
-- Conversation abandoned → probably failed
+**Result:** Total loss 4.12 → 0.13 over 100 epochs. Memory P@2 = 0.683, strategy accuracy = 100%.
 
-### Self-Evaluation
-- After each interaction, the LLM rates its own performance (1-5)
-- Cheap, fast, and surprisingly well-correlated with human judgment
-- Used to bootstrap training before enough human signal accumulates
+### Online Learning
+
+After initial training, the system continues learning from real interactions via the feedback loop.
+
+**Feedback Collector** extracts implicit training signal from user behavior:
+- **Explicit:** "Thanks!" → positive, "That's wrong" → negative
+- **Corrections:** "No, I meant..." → mild negative
+- **Confusion:** "What do you mean?" → clarity failure
+- **Engagement:** Conversation continued → mild positive, topic switched → mild negative
+
+Pattern-based extraction with confidence weighting. Each signal maps to a reward ∈ [-1, 1].
+
+**Replay Buffer** stores interaction outcomes (situation embedding, what was retrieved/selected, reward). Fixed capacity (default 10K), JSONL persistence, atomic writes. Recency-weighted sampling for training.
+
+**Online Trainer** runs incremental updates:
+- Small learning rate (1e-4) — stability over speed
+- Updates every N interactions (default 5), not every single one
+- Mini-batch sampling from replay buffer
+- EMA loss tracking to detect degradation
+- Gradient clipping for stability
+
+```python
+online = OnlineTrainer(encoder, gate, selector, estimator, registry)
+
+# After each interaction:
+outcome = online.record_interaction(
+    situation_emb=sit, memory_indices=[0,1,2], memory_scores=[0.9,0.7,0.5],
+    strategy_id="quick_answer", confidence=0.85,
+    user_response="Thanks, perfect!",
+)
+# Auto-trains after every 5 interactions using replay buffer
+```
+
+---
 
 ## State Management
 
-cortex-net is fully stateful and resumable. All system state is persisted to disk so the agent can survive interruptions — crashes, restarts, deployments — and resume exactly where it left off.
+All state persists to disk. The system survives crashes, restarts, and deployments.
 
-**What gets persisted:**
-- **Model weights** — Checkpoint files for all four components (Memory Gate, Situation Encoder, Strategy Selector, Confidence Estimator)
-- **Training state** — Optimizer state, learning rate schedules, epoch counters, loss history
-- **Interaction logs** — The raw training data: situations, retrievals, outcomes
-- **Component metadata** — Version, last training timestamp, performance metrics
+**StateManager** handles:
+- Atomic writes (write to temp file, then rename)
+- Versioned checkpoint format
+- Auto-resume on startup (load latest checkpoint)
+- Checkpoint pruning (keep last N)
 
-**How it works:**
-- State is saved to a configurable directory (default: `./state/`)
-- Checkpoints are written after each training step (or at configurable intervals)
-- On startup, the system loads the latest checkpoint and resumes — no manual intervention
-- If no checkpoint exists, components initialize to sensible defaults (e.g., Memory Gate falls back to cosine similarity)
+**What's persisted:**
+- Model weights for all 4 components (PyTorch `state_dict`)
+- `_trained` flag as a registered buffer (survives checkpoint round-trip)
+- Replay buffer (JSONL, append-only)
+- Interaction logs (JSONL via `InteractionLogger`)
 
-**Design rules:**
-- All state must be serializable to disk. No in-memory-only state that matters.
-- Writes are atomic (write to temp, then rename) to prevent corruption from mid-write crashes.
-- State format is versioned so old checkpoints remain loadable after code changes.
+**Cold start:** When no checkpoint exists, Memory Gate falls back to cosine similarity (identity-initialized W), Strategy Selector explores uniformly, Confidence Estimator outputs 0.5.
 
 ---
 
-## Integration Points
+## Benchmarks
 
-cortex-net is designed to wrap any LLM and any memory system:
+| Benchmark | Metric | cortex-net | Baseline | Improvement |
+|-----------|--------|------------|----------|-------------|
+| Memory Gate (5 scenarios) | P@3 | 0.667 | 0.400 (cosine) | **+67%** |
+| Situation Encoder (3 scenarios) | P@2 | 0.750 | 0.500 (no context) | **+50%** |
+| Strategy Selector (10 scenarios) | Accuracy | 20%* | 10% (fixed) | **+100%** |
+| Confidence Estimator | ECE | 0.010 | — | **< 0.1 target** |
+| Full comparison (6 scenarios) | P@3 | 0.833 | 0.778 (cosine RAG) | **+7%** |
 
-- **LLM:** Any model that accepts a text prompt and returns text. OpenAI, Anthropic, local models — doesn't matter.
-- **Memory:** Any vector store that returns embeddings. cortex-memory, Pinecone, Chroma, Qdrant — the Memory Gate scores on top.
-- **Tools:** Strategy profiles can include tool permission sets, but tool execution itself is handled by the LLM + host system.
+*Strategy selector accuracy with random embeddings (no text encoder in test); with real text embeddings, accuracy is 100% on training scenarios.
+
+---
+
+## File Map
+
+```
+src/cortex_net/
+├── context_assembler.py      # Full pipeline: query → assembled context
+├── situation_encoder.py      # MLP fusion: text + history + metadata → embedding
+├── memory_gate.py            # Bilinear relevance scorer, contrastive training
+├── strategy_selector.py      # 10-strategy classifier, epsilon-greedy exploration
+├── confidence_estimator.py   # Calibrated confidence, BCE + ECE loss
+├── joint_trainer.py          # Multi-task joint training, shared gradients
+├── feedback_collector.py     # Implicit feedback extraction, replay buffer
+├── online_trainer.py         # Continuous learning from interactions
+├── state_manager.py          # Atomic checkpointing, auto-resume
+├── interaction_log.py        # JSONL interaction logging
+├── embedding_store.py        # Persistent embedding cache
+├── retrieval_pipeline.py     # End-to-end retrieval pipeline
+├── eval.py                   # Precision@k, recall@k metrics
+├── benchmark.py              # Phase 1: memory gate real-text scenarios
+├── situation_benchmark.py    # Phase 2: contextual retrieval scenarios
+├── strategy_benchmark.py     # Phase 3: strategy evaluation scenarios
+└── comparison_benchmark.py   # Full system vs cosine RAG vs no-memory
+```
