@@ -140,7 +140,6 @@ class RetrievalPipeline:
         if meta is not None:
             self._step = meta.step
             self._epoch = meta.epoch
-            self.gate._trained = meta.extra.get("trained", False)
             return True
         return False
 
@@ -150,7 +149,7 @@ class RetrievalPipeline:
             component_name="memory_gate",
             epoch=self._epoch,
             step=self._step,
-            extra={"trained": self.gate.trained},
+            extra={},
         )
         return self.state_manager.save(self.gate, self.optimizer, meta)
 

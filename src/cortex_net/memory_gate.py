@@ -50,11 +50,12 @@ class MemoryGate(nn.Module):
         else:
             nn.init.xavier_uniform_(self.W)
 
-        self._trained = False
+        # Persistent flag: included in state_dict via register_buffer
+        self.register_buffer("_trained_flag", torch.tensor(0, dtype=torch.bool))
 
     @property
     def trained(self) -> bool:
-        return self._trained
+        return bool(self._trained_flag.item())
 
     def score_memories(
         self,
@@ -72,7 +73,7 @@ class MemoryGate(nn.Module):
         Returns:
             Relevance scores: (N,) or (B, N).
         """
-        if use_cosine_fallback and not self._trained:
+        if use_cosine_fallback and not self.trained:
             return self._cosine_scores(situation, memories)
 
         # Bilinear: situation @ W @ memories.T
@@ -160,7 +161,7 @@ class MemoryGate(nn.Module):
         loss.backward()
         optimizer.step()
 
-        self._trained = True
+        self._trained_flag.fill_(1)
         return loss.item()
 
     @staticmethod
