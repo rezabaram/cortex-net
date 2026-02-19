@@ -298,7 +298,13 @@ def pretrain(
             if idx < len(history):
                 labels[idx] = 1.0
         
-        scenarios.append((current_emb, history_embs, labels))
+        # Generate realistic metadata (alternating user/assistant roles)
+        roles = ["user" if i % 2 == 0 else "assistant" for i in range(len(history))]
+        timestamps = [float(i * 30) for i in range(len(history))]  # 30s between turns
+        from cortex_net.conversation_gate import build_turn_metadata
+        turn_meta = build_turn_metadata(roles, timestamps).to(device)
+        
+        scenarios.append((current_emb, history_embs, labels, turn_meta))
     
     if verbose:
         print(f"Generated {len(scenarios)} valid scenarios. Training...")
@@ -309,9 +315,9 @@ def pretrain(
         random.shuffle(scenarios)
         epoch_loss = 0.0
         
-        for current_emb, history_embs, labels in scenarios:
+        for current_emb, history_embs, labels, turn_meta in scenarios:
             optimizer.zero_grad()
-            loss = gate.training_loss(current_emb, history_embs, labels)
+            loss = gate.training_loss(current_emb, history_embs, labels, turn_metadata=turn_meta)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(gate.parameters(), 1.0)
             optimizer.step()

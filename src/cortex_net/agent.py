@@ -406,13 +406,15 @@ class CortexAgent:
 
             turn_embs = self._history_emb_cache[:n_total]
 
-            # Gate selects relevant turns
+            # Gate selects relevant turns (with metadata)
             ctx = self.conversation_gate.select_turns(
                 situation=situation,
                 turn_embeddings=turn_embs,
                 messages=[{"role": t.role, "content": t.content} for t in history_window],
-                min_turns=0,  # gate can select nothing if nothing is relevant
+                min_turns=0,
                 max_turns=len(history_window),
+                roles=[t.role for t in history_window],
+                timestamps=[t.timestamp for t in history_window],
             )
             messages = ctx.messages
             # Log conversation gate stats

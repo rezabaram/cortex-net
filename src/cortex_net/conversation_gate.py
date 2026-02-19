@@ -24,8 +24,44 @@ class ConversationContext:
     selected_indices: list[int] # which turns were selected
 
 
+# Number of metadata features per turn
+TURN_META_DIM = 4  # role_is_user, role_is_assistant, time_gap_normalized, pair_position
+
+
+def build_turn_metadata(
+    roles: list[str],
+    timestamps: list[float] | None = None,
+) -> torch.Tensor:
+    """Build metadata features for each conversation turn.
+
+    Returns (num_turns, TURN_META_DIM) tensor with:
+    - role_is_user (0 or 1)
+    - role_is_assistant (0 or 1)
+    - time_gap_normalized (0-1, gap since previous turn / max_gap)
+    - pair_position (0=first in pair, 1=second — for Q&A pairing)
+    """
+    n = len(roles)
+    meta = torch.zeros(n, TURN_META_DIM)
+
+    for i, role in enumerate(roles):
+        meta[i, 0] = 1.0 if role == "user" else 0.0
+        meta[i, 1] = 1.0 if role == "assistant" else 0.0
+        # Pair position: alternating 0, 1, 0, 1...
+        meta[i, 3] = float(i % 2)
+
+    if timestamps and len(timestamps) == n:
+        gaps = [0.0]
+        for i in range(1, n):
+            gaps.append(timestamps[i] - timestamps[i - 1])
+        max_gap = max(gaps) if max(gaps) > 0 else 1.0
+        for i, gap in enumerate(gaps):
+            meta[i, 2] = min(gap / max_gap, 1.0)
+
+    return meta
+
+
 class BilinearScorer(nn.Module):
-    """Pointwise bilinear relevance scorer (original gate mechanism)."""
+    """Pointwise bilinear relevance scorer with turn metadata."""
 
     def __init__(self, dim: int = 384):
         super().__init__()
@@ -33,10 +69,16 @@ class BilinearScorer(nn.Module):
         self.recency_weight = nn.Parameter(torch.tensor(0.3))
         self.decay_rate = nn.Parameter(torch.tensor(0.5))
 
+        # Metadata influence on scoring
+        self.meta_weight = nn.Linear(TURN_META_DIM, 1, bias=True)
+        nn.init.zeros_(self.meta_weight.weight)  # start with no metadata influence
+        nn.init.zeros_(self.meta_weight.bias)
+
     def forward(
         self,
         situation: torch.Tensor,     # (dim,)
         turn_embeddings: torch.Tensor,  # (num_turns, dim)
+        turn_metadata: torch.Tensor | None = None,  # (num_turns, TURN_META_DIM)
     ) -> torch.Tensor:
         """Returns (num_turns,) raw scores (pre-sigmoid)."""
         projected = situation @ self.W  # (dim,)
@@ -51,7 +93,14 @@ class BilinearScorer(nn.Module):
         decay = torch.sigmoid(self.decay_rate)
         temporal_penalty = decay * age
 
-        return raw_scores + recency_bias - temporal_penalty
+        scores = raw_scores + recency_bias - temporal_penalty
+
+        # Add metadata influence if available
+        if turn_metadata is not None:
+            meta_bias = self.meta_weight(turn_metadata).squeeze(-1)  # (num_turns,)
+            scores = scores + meta_bias
+
+        return scores
 
 
 class ContextualAttention(nn.Module):
@@ -71,8 +120,8 @@ class ContextualAttention(nn.Module):
         super().__init__()
         self.head_dim = head_dim
 
-        # Project turn embeddings + bilinear score to attention space
-        self.turn_proj = nn.Linear(dim + 1, head_dim)
+        # Project turn embeddings + bilinear score + metadata to attention space
+        self.turn_proj = nn.Linear(dim + 1 + TURN_META_DIM, head_dim)
 
         # Situation query projection
         self.situation_proj = nn.Linear(dim, head_dim)
@@ -106,15 +155,21 @@ class ContextualAttention(nn.Module):
         situation: torch.Tensor,        # (dim,)
         turn_embeddings: torch.Tensor,  # (N, dim)
         bilinear_scores: torch.Tensor,  # (N,) pre-sigmoid
+        turn_metadata: torch.Tensor | None = None,  # (N, TURN_META_DIM)
     ) -> torch.Tensor:
         """Returns refined raw scores (pre-sigmoid), shape (N,)."""
         N = turn_embeddings.shape[0]
         if N == 0:
             return bilinear_scores
 
-        # Step 1: Build turn representations [embedding; bilinear_score]
+        # Step 1: Build turn representations [embedding; bilinear_score; metadata]
         score_feature = bilinear_scores.unsqueeze(-1)  # (N, 1)
-        turn_features = torch.cat([turn_embeddings, score_feature], dim=-1)  # (N, dim+1)
+        parts = [turn_embeddings, score_feature]
+        if turn_metadata is not None:
+            parts.append(turn_metadata)
+        else:
+            parts.append(torch.zeros(N, TURN_META_DIM, device=turn_embeddings.device))
+        turn_features = torch.cat(parts, dim=-1)  # (N, dim+1+TURN_META_DIM)
         turn_hidden = self.turn_proj(turn_features)  # (N, head_dim)
 
         # Step 2: Self-attention among turns
@@ -202,17 +257,18 @@ class ConversationGate(nn.Module):
         self,
         situation: torch.Tensor,
         turn_embeddings: torch.Tensor,
+        turn_metadata: torch.Tensor | None = None,
     ) -> torch.Tensor:
         """Score each turn's relevance. Returns (num_turns,) in [0, 1]."""
         if turn_embeddings.shape[0] == 0:
             return torch.tensor([], device=situation.device)
 
-        # Tier 1: Bilinear pointwise scores
-        bilinear_raw = self.bilinear(situation, turn_embeddings)
+        # Tier 1: Bilinear pointwise scores (with metadata)
+        bilinear_raw = self.bilinear(situation, turn_embeddings, turn_metadata)
 
         # Tier 2: Attention refinement (if >1 turn — no self-attention for single turn)
         if turn_embeddings.shape[0] > 1:
-            refined_raw = self.attention(situation, turn_embeddings, bilinear_raw)
+            refined_raw = self.attention(situation, turn_embeddings, bilinear_raw, turn_metadata)
         else:
             refined_raw = bilinear_raw
 
@@ -224,6 +280,7 @@ class ConversationGate(nn.Module):
         turn_embeddings: torch.Tensor,
         min_turns: int = 0,
         max_select: int = 10,
+        turn_metadata: torch.Tensor | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """Select relevant turns.
 
@@ -231,7 +288,7 @@ class ConversationGate(nn.Module):
             selected_mask: (num_turns,) boolean mask
             scores: (num_turns,) relevance scores
         """
-        scores = self.score_turns(situation, turn_embeddings)
+        scores = self.score_turns(situation, turn_embeddings, turn_metadata=turn_metadata)
 
         if len(scores) == 0:
             return torch.tensor([], dtype=torch.bool), scores
@@ -270,15 +327,23 @@ class ConversationGate(nn.Module):
         messages: list[dict],
         min_turns: int = 0,
         max_turns: int = 10,
+        roles: list[str] | None = None,
+        timestamps: list[float] | None = None,
     ) -> ConversationContext:
         """High-level API: select relevant conversation turns."""
         if not messages:
             return ConversationContext(messages=[], scores=[], selected_indices=[])
 
+        # Build metadata if roles provided
+        turn_metadata = None
+        if roles:
+            turn_metadata = build_turn_metadata(roles, timestamps).to(turn_embeddings.device)
+
         with torch.no_grad():
             selected_mask, scores = self.forward(
                 situation, turn_embeddings,
                 min_turns=min_turns, max_select=max_turns,
+                turn_metadata=turn_metadata,
             )
 
         selected_indices = selected_mask.nonzero(as_tuple=True)[0].tolist()
@@ -348,9 +413,10 @@ class ConversationGate(nn.Module):
         situation: torch.Tensor,
         turn_embeddings: torch.Tensor,
         relevance_labels: torch.Tensor,
+        turn_metadata: torch.Tensor | None = None,
     ) -> torch.Tensor:
         """BCE loss against ground-truth relevance labels."""
-        scores = self.score_turns(situation, turn_embeddings)
+        scores = self.score_turns(situation, turn_embeddings, turn_metadata=turn_metadata)
         return F.binary_cross_entropy(scores, relevance_labels.float())
 
     def load_state_dict(self, state_dict, strict=True, assign=False):
