@@ -36,6 +36,7 @@ from cortex_net.situation_encoder import SituationEncoder, extract_metadata_feat
 from cortex_net.state_manager import StateManager
 from cortex_net.strategy_selector import StrategySelector, StrategyRegistry
 from cortex_net.tools import ToolRegistry, create_default_tools
+from cortex_net.monitor import AgentMonitor, InteractionLog
 
 
 @dataclass
@@ -227,6 +228,9 @@ class CortexAgent:
         if self.config.tools_enabled:
             self.tool_registry = create_default_tools(workdir=self.config.tools_workdir)
 
+        # Monitor
+        self.monitor = AgentMonitor(log_dir=state_dir, name=self.config.model.replace("/", "-"))
+
         # Conversation state
         self.history: list[ConversationTurn] = []
         self._last_situation_emb: torch.Tensor | None = None
@@ -254,6 +258,11 @@ class CortexAgent:
         Returns:
             Assistant response text.
         """
+        ilog = self.monitor.new_interaction()
+        ilog.user_message = message[:200]
+        ilog.message_length = len(message)
+        t_start = time.time()
+
         # Auto-populate metadata
         if metadata is None:
             now = time.localtime()
@@ -266,7 +275,7 @@ class CortexAgent:
 
         # Step 1: Extract feedback from this message about the PREVIOUS turn
         if self.online_trainer and self._last_situation_emb is not None:
-            self.online_trainer.record_interaction(
+            outcome = self.online_trainer.record_interaction(
                 situation_emb=self._last_situation_emb,
                 memory_indices=self._last_memory_indices,
                 memory_scores=self._last_memory_scores,
@@ -276,8 +285,14 @@ class CortexAgent:
                 query=self.history[-2].content if len(self.history) >= 2 else "",
                 conversation_continued=True,
             )
+            ilog.feedback_reward = outcome.reward
+            ilog.feedback_type = outcome.signals[0].signal_type if outcome.signals else "neutral"
+            ilog.buffer_size = len(self.online_trainer.buffer)
+            ilog.ema_loss = self.online_trainer.ema_loss
+            ilog.online_update = self.online_trainer._interactions_since_update == 0
 
         # Step 2: Encode situation
+        t_encode = time.time()
         msg_emb = self.text_encoder.encode(message, convert_to_tensor=True).to(self.device)
 
         # History embedding (mean of recent messages)
@@ -293,8 +308,11 @@ class CortexAgent:
 
         with torch.no_grad():
             situation = self.encoder(msg_emb, hist_emb, meta_tensor)
+        ilog.situation_norm = situation.norm().item()
+        ilog.encoding_ms = (time.time() - t_encode) * 1000
 
         # Step 3: Memory retrieval via MemoryBank
+        t_retrieve = time.time()
         selected_memories = []
         memory_indices = []
         memory_scores = []
@@ -307,10 +325,22 @@ class CortexAgent:
             memory_indices = list(range(len(results)))
             memory_scores = [r.score for r in results]
 
+        ilog.retrieval_ms = (time.time() - t_retrieve) * 1000
+        ilog.memories_retrieved = len(selected_memories)
+        ilog.memory_scores = [round(s, 3) for s in memory_scores]
+        ilog.memory_texts = [m[:80] for m in selected_memories]
+        ilog.top_memory_score = memory_scores[0] if memory_scores else 0
+        ilog.mean_memory_score = sum(memory_scores) / len(memory_scores) if memory_scores else 0
+
         # Step 4: Strategy selection
+        t_strategy = time.time()
         with torch.no_grad():
             selection = self.selector.select(situation, self.registry, explore=True)
         strategy = selection.strategy
+        ilog.strategy_ms = (time.time() - t_strategy) * 1000
+        ilog.strategy_id = selection.strategy_id
+        ilog.strategy_confidence = selection.confidence
+        ilog.strategy_probabilities = {k: round(v, 3) for k, v in selection.probabilities.items()}
 
         # Step 5: Confidence estimation
         ctx_summary = ContextSummary(
@@ -322,6 +352,9 @@ class CortexAgent:
             confidence = self.estimator(
                 situation, ctx_summary.to_tensor().to(self.device)
             ).item()
+
+        ilog.confidence = confidence
+        ilog.confidence_action = "proceed" if confidence >= 0.8 else "hedge" if confidence >= 0.4 else "escalate"
 
         # Step 6: Build prompt
         system_parts = [self.config.system_prompt]
@@ -354,6 +387,9 @@ class CortexAgent:
         messages.append({"role": "user", "content": message})
 
         # Step 8: Call LLM with tool loop
+        t_llm = time.time()
+        tool_call_count = 0
+        tool_names_used = []
         all_messages = [{"role": "system", "content": system_prompt}] + messages
 
         call_kwargs = {
@@ -381,6 +417,8 @@ class CortexAgent:
                     args = json.loads(tc.function.arguments)
                 except json.JSONDecodeError:
                     args = {}
+                tool_call_count += 1
+                tool_names_used.append(tc.function.name)
                 result = self.tool_registry.execute(tc.function.name, args)
                 all_messages.append({
                     "role": "tool",
@@ -393,6 +431,13 @@ class CortexAgent:
         else:
             # Hit max rounds — get whatever the last response was
             assistant_text = choice.message.content or "(max tool rounds reached)"
+
+        ilog.llm_ms = (time.time() - t_llm) * 1000
+        ilog.response_length = len(assistant_text)
+        ilog.tool_calls = tool_call_count
+        ilog.tool_names = tool_names_used
+        ilog.total_ms = (time.time() - t_start) * 1000
+        self.monitor.record(ilog)
 
         # Step 9: Update conversation history
         self.history.append(ConversationTurn(role="user", content=message, timestamp=time.time()))
