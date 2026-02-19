@@ -73,7 +73,7 @@ class MemoryGate(nn.Module):
         Returns:
             Relevance scores: (N,) or (B, N).
         """
-        if use_cosine_fallback and not self.trained:
+        if use_cosine_fallback and not self.trained and self.situation_dim == self.memory_dim:
             return self._cosine_scores(situation, memories)
 
         # Bilinear: situation @ W @ memories.T
