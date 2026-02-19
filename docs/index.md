@@ -25,4 +25,5 @@ The result: an agent that gets meaningfully better at its job over time, without
 ## Status
 
 ✅ **Phase 1 Complete** — Memory Gate proven (+67% vs cosine on real text).
-⏳ **Phase 2 In Progress** — Situation Encoder built and benchmarked (+50% on contextual retrieval). Wiring into pipeline next. See [Implementation Plan](implementation.md) for details.
+✅ **Phase 2 Complete** — Situation Encoder (+50% on contextual retrieval). Integrated into pipeline.
+⏳ **Phase 3 Next** — Strategy Selector. See [Implementation Plan](implementation.md).

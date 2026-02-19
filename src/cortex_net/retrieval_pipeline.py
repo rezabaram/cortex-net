@@ -45,6 +45,7 @@ from cortex_net.interaction_log import (
     UsageData,
 )
 from cortex_net.memory_gate import MemoryGate
+from cortex_net.situation_encoder import SituationEncoder, SituationFeatures, extract_metadata_features
 from cortex_net.state_manager import CheckpointMetadata, StateManager
 
 
@@ -106,6 +107,7 @@ class RetrievalPipeline:
         log_dir: str | Path = "./logs",
         embedding_model: str = "all-MiniLM-L6-v2",
         embedding_dim: int = 384,
+        situation_dim: int | None = None,
         device: str = "cpu",
         lr: float = 1e-3,
     ) -> None:
@@ -113,13 +115,32 @@ class RetrievalPipeline:
         self.embedding_dim = embedding_dim
         self.lr = lr
 
-        # Components
-        self.encoder = SentenceTransformer(embedding_model, device=device)
+        # Text encoder
+        self.text_encoder = SentenceTransformer(embedding_model, device=device)
+
+        # Situation Encoder (optional — if situation_dim is set, use it)
+        self.situation_dim = situation_dim
+        if situation_dim is not None:
+            self.situation_encoder = SituationEncoder(
+                text_dim=embedding_dim,
+                output_dim=situation_dim,
+            ).to(self.device)
+            gate_situation_dim = situation_dim
+        else:
+            self.situation_encoder = None
+            gate_situation_dim = embedding_dim
+
+        # Memory Gate
         self.gate = MemoryGate(
-            situation_dim=embedding_dim,
+            situation_dim=gate_situation_dim,
             memory_dim=embedding_dim,
         ).to(self.device)
-        self.optimizer = torch.optim.Adam(self.gate.parameters(), lr=lr)
+
+        # Optimizer covers both encoder and gate
+        params = list(self.gate.parameters())
+        if self.situation_encoder is not None:
+            params += list(self.situation_encoder.parameters())
+        self.optimizer = torch.optim.Adam(params, lr=lr)
 
         # State & logging
         self.state_manager = StateManager(state_dir)
@@ -134,31 +155,78 @@ class RetrievalPipeline:
 
     def load(self) -> bool:
         """Load latest checkpoint. Returns True if a checkpoint was loaded."""
+        loaded = False
         meta = self.state_manager.load(
-            self.gate, self.optimizer, component_name="memory_gate"
+            self.gate, component_name="memory_gate"
         )
         if meta is not None:
             self._step = meta.step
             self._epoch = meta.epoch
-            return True
-        return False
+            loaded = True
+
+        if self.situation_encoder is not None:
+            enc_meta = self.state_manager.load(
+                self.situation_encoder, component_name="situation_encoder"
+            )
+            if enc_meta is not None:
+                loaded = True
+
+        return loaded
 
     def save(self) -> Path:
         """Save current state to checkpoint."""
-        meta = CheckpointMetadata(
+        gate_meta = CheckpointMetadata(
             component_name="memory_gate",
             epoch=self._epoch,
             step=self._step,
-            extra={},
         )
-        return self.state_manager.save(self.gate, self.optimizer, meta)
+        path = self.state_manager.save(self.gate, None, gate_meta)
+
+        if self.situation_encoder is not None:
+            enc_meta = CheckpointMetadata(
+                component_name="situation_encoder",
+                epoch=self._epoch,
+                step=self._step,
+            )
+            self.state_manager.save(self.situation_encoder, None, enc_meta)
+
+        return path
 
     def embed(self, texts: str | list[str]) -> torch.Tensor:
         """Embed text(s) using the sentence transformer."""
         if isinstance(texts, str):
             texts = [texts]
-        embeddings = self.encoder.encode(texts, convert_to_tensor=True)
+        embeddings = self.text_encoder.encode(texts, convert_to_tensor=True)
         return embeddings.to(self.device)
+
+    def encode_situation(
+        self,
+        query: str,
+        history: list[str] | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> torch.Tensor:
+        """Encode a query into a situation embedding.
+
+        If Situation Encoder is enabled, fuses text + history + metadata.
+        Otherwise, returns the raw text embedding.
+        """
+        query_emb = self.embed(query).squeeze(0)
+
+        if self.situation_encoder is None:
+            return query_emb
+
+        # Compute history embedding
+        if history:
+            hist_embs = self.embed(history)
+            hist_emb = hist_embs.mean(dim=0)
+        else:
+            hist_emb = torch.zeros(self.embedding_dim, device=self.device)
+
+        meta = extract_metadata_features(
+            metadata or {}, query, history or []
+        ).to(self.device)
+
+        return self.situation_encoder(query_emb, hist_emb, meta)
 
     def retrieve(
         self,
@@ -180,26 +248,28 @@ class RetrievalPipeline:
         Returns:
             RetrievalResult with indices, scores, and texts.
         """
-        # Embed query and candidates
-        query_emb = self.embed(query).squeeze(0)
+        # Encode situation (uses Situation Encoder if available, else raw text)
+        situation_emb = self.encode_situation(query, history, metadata)
         candidate_embs = self.embed(candidate_texts)
 
         # Score with Memory Gate (falls back to cosine if untrained)
         with torch.no_grad():
-            indices, scores = self.gate.select_top_k(query_emb, candidate_embs, k=k)
+            indices, scores = self.gate.select_top_k(situation_emb, candidate_embs, k=k)
 
         indices_list = indices.cpu().tolist()
         scores_list = scores.cpu().tolist()
         selected_texts = [candidate_texts[i] for i in indices_list]
 
-        method = "memory_gate" if self.gate.trained else "cosine"
+        method = "situation_encoder+memory_gate" if self.situation_encoder is not None else (
+            "memory_gate" if self.gate.trained else "cosine"
+        )
 
         # Log the interaction (pending outcome)
         situation = SituationData(
             message=query,
             history=history or [],
             metadata=metadata or {},
-            embedding=query_emb.cpu().tolist(),
+            embedding=situation_emb.detach().cpu().tolist(),
         )
         record = self.logger.begin(situation)
         record.retrieval = RetrievalData(

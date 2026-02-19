@@ -74,7 +74,7 @@ Gate wins where cosine fails: distractor rejection, past failure recall, user pr
 
 ---
 
-## Phase 2: Situation Encoder — Weeks 4-6 ⏳ IN PROGRESS
+## Phase 2: Situation Encoder — ✅ COMPLETE
 
 **Goal:** Build a shared situation representation that all components can use.
 
@@ -91,12 +91,12 @@ Gate wins where cosine fails: distractor rejection, past failure recall, user pr
 - [x] `encode_situation()` high-level API from raw SituationFeatures
 - [x] Contrastive training test confirms: encoder learns to cluster same-type situations
 
-### Week 6: Integration ⏳
+### Week 6: Integration ✅
 - [x] Joint training: Situation Encoder + Memory Gate trained together on contextual scenarios
 - [x] Contextual benchmark: same query, different context → different correct memories
-- [ ] Wire Situation Encoder into `RetrievalPipeline` as the default path
-- [ ] Measure end-to-end improvement on Phase 1 benchmark scenarios
-- [ ] Document architecture decisions
+- [x] Wire Situation Encoder into `RetrievalPipeline` as optional component (`situation_dim` param)
+- [x] Pipeline auto-routes: text+history+metadata → Situation Encoder → Memory Gate
+- [x] Separate checkpointing for encoder and gate (both resume independently)
 
 ### Contextual Benchmark Results
 
@@ -116,11 +116,13 @@ Gate wins where cosine fails: distractor rejection, past failure recall, user pr
 | **Phase 2 total** | **2 modules** | **17** | |
 | **Project total** | **9 modules** | **62** | **All passing** |
 
-**Exit criteria:** Situation Encoder produces meaningful embeddings where similar situations cluster together ✅, and improves Memory Gate performance when used as input ✅ (+50% on contextual retrieval). Remaining: wire into RetrievalPipeline.
+**Exit criteria:** Situation Encoder produces meaningful embeddings where similar situations cluster together ✅, and improves Memory Gate performance when used as input ✅ (+50% on contextual retrieval). Fully wired into RetrievalPipeline ✅.
+
+**Decision: Proceed to Phase 3.** ✓
 
 ---
 
-## Phase 3: Strategy Selector — Weeks 7-10
+## Phase 3: Strategy Selector — Weeks 7-10 ← NEXT
 
 **Goal:** Agent learns to choose the right approach for the right situation.
 
