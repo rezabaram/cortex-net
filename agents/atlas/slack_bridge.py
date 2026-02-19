@@ -180,14 +180,15 @@ def run():
         last_ts = ts_file.read_text().strip()
         log.info(f"Resuming from last_ts={last_ts}")
     else:
-        last_ts = str(time.time() - 60)
-        log.info(f"Fresh start, looking back 60s")
+        last_ts = str(time.time() - 300)
+        log.info(f"Fresh start, looking back 5 min")
 
+    log.info(f"Entering poll loop, last_ts={last_ts}")
     while True:
         try:
-            log.debug(f"Polling... last_ts={last_ts}")
             messages = get_history(CHANNEL_ID, oldest=last_ts, limit=5)
-            log.debug(f"Got {len(messages)} messages")
+            if messages:
+                log.info(f"Poll: {len(messages)} messages (last_ts={last_ts})")
 
             # Process in chronological order (API returns newest first)
             for msg in reversed(messages):
