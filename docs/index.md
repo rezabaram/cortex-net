@@ -19,8 +19,11 @@ The result: an agent that gets meaningfully better at its job over time, without
 
 - [Vision](vision.md) — The problem we're solving and why it matters
 - [Architecture](architecture.md) — The Context Assembly Network in detail
+- [Memory System](memory.md) — SQLite-backed extensible memory with retrieval, decay, and consolidation
+- [Training & Learning](training.md) — Joint training + online learning from real interactions
+- [Live Agent](agent.md) — Running a cortex-net agent with any OpenAI-compatible LLM
 - [Why This Matters](why.md) — What's broken in today's agents
-- [Implementation Plan](implementation.md) — Phased roadmap from prototype to integration
+- [Implementation Plan](implementation.md) — Phased roadmap with results
 
 ## Status
 
