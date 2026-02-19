@@ -62,6 +62,12 @@ class ConfidenceResult:
     confidence: float  # 0.0 - 1.0
     action: str  # "proceed" | "hedge" | "escalate"
     raw_logit: float = 0.0
+    entropy: float = 0.0  # entropy of confidence distribution
+    is_certain: bool = False  # True if entropy below threshold
+    fallback: str = ""  # "clarify" when is_certain is False
+
+    # Entropy threshold for certainty (in nats)
+    ENTROPY_THRESHOLD: float = 0.5
 
     @staticmethod
     def action_from_confidence(confidence: float) -> str:
@@ -71,6 +77,49 @@ class ConfidenceResult:
             return "hedge"
         else:
             return "escalate"
+
+    @staticmethod
+    def compute_entropy(confidence: float) -> float:
+        """Compute binary entropy for a confidence value.
+        
+        For binary outcome (correct/incorrect), entropy is maximized
+        at p=0.5 and minimized at p=0 or p=1.
+        """
+        # Clamp to avoid log(0)
+        p = max(1e-7, min(1 - 1e-7, confidence))
+        q = 1 - p
+        return -(p * torch.log(torch.tensor(p)) + q * torch.log(torch.tensor(q))).item()
+
+    @staticmethod
+    def determine_fallback(is_certain: bool, action: str) -> str:
+        """Determine fallback strategy when uncertain."""
+        if not is_certain:
+            return "clarify"
+        # If certain but action is escalate, suggest human review
+        if action == "escalate":
+            return "human_review"
+        return ""
+
+    @staticmethod
+    def from_confidence(confidence: float) -> "ConfidenceResult":
+        """Create ConfidenceResult with entropy, certainty, and fallback."""
+        entropy = ConfidenceResult.compute_entropy(confidence)
+        is_certain = entropy < ConfidenceResult.ENTROPY_THRESHOLD
+        action = ConfidenceResult.action_from_confidence(confidence)
+        fallback = ConfidenceResult.determine_fallback(is_certain, action)
+        
+        # Map confidence to raw_logit (inverse sigmoid)
+        import math
+        raw_logit = math.log(confidence / (1 - confidence + 1e-7)) if confidence < 0.99 else 5.0
+        
+        return ConfidenceResult(
+            confidence=confidence,
+            action=action,
+            raw_logit=raw_logit,
+            entropy=entropy,
+            is_certain=is_certain,
+            fallback=fallback,
+        )
 
 
 class ConfidenceEstimator(nn.Module):
@@ -146,16 +195,13 @@ class ConfidenceEstimator(nn.Module):
             context: Context quality summary.
 
         Returns:
-            ConfidenceResult with score and recommended action.
+            ConfidenceResult with score, action, entropy, certainty, and fallback.
         """
         ctx_tensor = context.to_tensor().to(situation.device)
         with torch.no_grad():
             conf = self.forward(situation, ctx_tensor).item()
 
-        return ConfidenceResult(
-            confidence=conf,
-            action=ConfidenceResult.action_from_confidence(conf),
-        )
+        return ConfidenceResult.from_confidence(conf)
 
 
 # ── Calibration Loss ─────────────────────────────────────────────────

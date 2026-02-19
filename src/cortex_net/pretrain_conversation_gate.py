@@ -21,6 +21,7 @@ from sentence_transformers import SentenceTransformer
 from cortex_net.conversation_gate import ConversationGate
 
 # Synthetic conversation topics — each is a cluster of related messages
+# Broad topics for cross-domain distinction
 TOPICS = {
     "debugging": [
         "There's a bug in the memory gate — it returns NaN scores.",
@@ -85,6 +86,67 @@ TOPICS = {
 }
 
 
+# Same-domain subtopics — harder to distinguish
+SUBTOPICS = {
+    "memory_gate_debug": [
+        "The memory gate is returning NaN scores on long inputs.",
+        "I think the bilinear matrix is overflowing. Let's clamp.",
+        "After clamping, scores are all near zero for some queries.",
+        "The embeddings aren't normalized — that explains the zero scores.",
+        "Gate scores look good now. Identity init works as cosine fallback.",
+    ],
+    "memory_gate_training": [
+        "How do we train the memory gate? Contrastive loss?",
+        "Yes, positive pairs from same conversation, negatives from others.",
+        "The training converges fast — 10 epochs is enough for memory gate.",
+        "We should use hard negatives for better precision.",
+        "Gate precision went from 0.40 to 0.67 after training.",
+    ],
+    "strategy_debugging": [
+        "The strategy selector keeps picking 'optimize' for every query.",
+        "That's because it's untrained — epsilon-greedy gives random picks.",
+        "Even after training, it picks 'deploy' for code review questions.",
+        "We need more training data for strategy to differentiate tasks.",
+        "The categorical selector can't blend strategies. That's a limitation.",
+    ],
+    "strategy_design": [
+        "Should we use continuous strategies instead of categorical?",
+        "Yes — anchor points in 64-dim space with attribute heads.",
+        "The five attributes are reasoning_depth, creativity, verbosity, tool_intensity, caution.",
+        "Strategy blending lets us combine implement and debug approaches.",
+        "ContinuousStrategySelector projects situation to strategy space.",
+    ],
+    "testing_monitor": [
+        "We need tests for the monitor module.",
+        "Cover JSONL output, summary stats, and resume from existing logs.",
+        "Use tmp_path fixture for test isolation.",
+        "The InteractionLog dataclass needs default values for all fields.",
+        "All 9 monitor tests pass. Good coverage.",
+    ],
+    "testing_agent": [
+        "The agent tests need mocking for LLM calls.",
+        "We mock OpenAI client to return canned responses.",
+        "Test the feedback loop: positive message should yield high reward.",
+        "Agent state save/load needs round-trip testing.",
+        "The tool loop test should verify max_tool_rounds is respected.",
+    ],
+    "deployment_systemd": [
+        "Set up atlas-slack.service as a systemd user service.",
+        "WorkingDirectory should be the cortex-net repo root.",
+        "Enable the service so it starts on boot.",
+        "Log rotation: systemd journal handles it but we also write JSONL.",
+        "Restart=always with 5-second delay for crash recovery.",
+    ],
+    "deployment_docker": [
+        "We should containerize the agent with Docker.",
+        "The Dockerfile needs sentence-transformers and PyTorch.",
+        "Mount the state directory as a volume for persistence.",
+        "Use multi-stage build to keep the image small.",
+        "Docker compose for the agent plus a monitoring sidecar.",
+    ],
+}
+
+
 def generate_scenario() -> tuple[str, list[str], list[int]]:
     """Generate a conversation scenario with relevance labels.
     
@@ -93,51 +155,73 @@ def generate_scenario() -> tuple[str, list[str], list[int]]:
         history: list of conversation turns
         relevant_indices: which history turns are relevant
     """
-    topics = list(TOPICS.keys())
-    scenario_type = random.choice(["new_task", "followup", "reference_old", "mixed"])
+    # Mix broad topics and subtopics for training diversity
+    all_pools = {**TOPICS, **SUBTOPICS}
+    topics = list(all_pools.keys())
+    scenario_type = random.choice([
+        "new_task", "followup", "reference_old", "mixed",
+        "subtopic_switch",  # same domain, different subtopic
+    ])
     
     if scenario_type == "new_task":
         # Long conversation about topic A, then new task about topic B
         topic_a, topic_b = random.sample(topics, 2)
-        history = random.sample(TOPICS[topic_a], min(6, len(TOPICS[topic_a])))
-        current_message = random.choice(TOPICS[topic_b])
-        # Nothing in history is relevant to the new task
+        history = random.sample(all_pools[topic_a], min(6, len(all_pools[topic_a])))
+        current_message = random.choice(all_pools[topic_b])
         relevant_indices = []
         
     elif scenario_type == "followup":
         # Conversation about topic A, follow-up about topic A
         topic = random.choice(topics)
-        msgs = TOPICS[topic]
+        msgs = all_pools[topic]
         n_hist = random.randint(3, min(6, len(msgs) - 1))
         history = msgs[:n_hist]
-        current_message = msgs[n_hist]  # next message in same topic
-        # All history turns are relevant
+        current_message = msgs[n_hist]
         relevant_indices = list(range(len(history)))
         
     elif scenario_type == "reference_old":
         # Topic A → Topic B → back to Topic A
         topic_a, topic_b = random.sample(topics, 2)
-        hist_a = random.sample(TOPICS[topic_a], 3)
-        hist_b = random.sample(TOPICS[topic_b], 3)
-        history = hist_a + hist_b  # A first, then B
-        current_message = random.choice([m for m in TOPICS[topic_a] if m not in hist_a])
-        # Only topic A turns are relevant (indices 0-2)
+        hist_a = random.sample(all_pools[topic_a], 3)
+        hist_b = random.sample(all_pools[topic_b], 3)
+        history = hist_a + hist_b
+        current_message = random.choice([m for m in all_pools[topic_a] if m not in hist_a])
         relevant_indices = [0, 1, 2]
         
     elif scenario_type == "mixed":
         # Interleaved topics, ask about one
         topic_a, topic_b = random.sample(topics, 2)
-        msgs_a = random.sample(TOPICS[topic_a], 3)
-        msgs_b = random.sample(TOPICS[topic_b], 3)
-        # Interleave
+        msgs_a = random.sample(all_pools[topic_a], 3)
+        msgs_b = random.sample(all_pools[topic_b], 3)
         history = []
         indices_a = []
         for i in range(3):
             history.append(msgs_a[i])
             indices_a.append(len(history) - 1)
             history.append(msgs_b[i])
-        current_message = random.choice([m for m in TOPICS[topic_a] if m not in msgs_a])
+        current_message = random.choice([m for m in all_pools[topic_a] if m not in msgs_a])
         relevant_indices = indices_a
+    
+    elif scenario_type == "subtopic_switch":
+        # Same broad domain but different subtopic
+        # Pick two subtopics from same domain (e.g., memory_gate_debug vs memory_gate_training)
+        subtopic_keys = list(SUBTOPICS.keys())
+        # Group by domain prefix
+        domains = {}
+        for k in subtopic_keys:
+            prefix = k.rsplit("_", 1)[0]
+            domains.setdefault(prefix, []).append(k)
+        # Pick a domain with 2+ subtopics
+        multi_domains = {k: v for k, v in domains.items() if len(v) >= 2}
+        if multi_domains:
+            domain = random.choice(list(multi_domains.keys()))
+            st_a, st_b = random.sample(multi_domains[domain], 2)
+        else:
+            st_a, st_b = random.sample(subtopic_keys, 2)
+        history = random.sample(SUBTOPICS[st_a], min(4, len(SUBTOPICS[st_a])))
+        current_message = random.choice(SUBTOPICS[st_b])
+        # Different subtopic — history is NOT relevant even though same domain
+        relevant_indices = []
     
     return current_message, history, relevant_indices
 
@@ -287,7 +371,7 @@ if __name__ == "__main__":
     
     # Pre-train
     print("=== Pre-training ===")
-    stats = pretrain(gate, encoder, n_scenarios=500, epochs=10, device=device)
+    stats = pretrain(gate, encoder, n_scenarios=1000, epochs=20, device=device)
     print(f"\n  {stats}")
     print()
     

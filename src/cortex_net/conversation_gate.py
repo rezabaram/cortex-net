@@ -49,6 +49,11 @@ class ConversationGate(nn.Module):
         # Recency bias — learned weight for position-based decay
         self.recency_weight = nn.Parameter(torch.tensor(0.3))
 
+        # Temporal decay — learned half-life for exponential decay
+        # Older turns get multiplicatively penalized
+        # decay_rate through sigmoid gives [0, 1]; higher = faster decay
+        self.decay_rate = nn.Parameter(torch.tensor(0.5))
+
         # Trained flag
         self.register_buffer("_trained", torch.tensor(False))
 
@@ -78,8 +83,14 @@ class ConversationGate(nn.Module):
         recency = positions / max(num_turns - 1, 1)  # 0 (oldest) → 1 (newest)
         recency_bias = torch.sigmoid(self.recency_weight) * recency
 
-        # Combine semantic relevance with recency
-        scores = torch.sigmoid(raw_scores + recency_bias)
+        # Temporal decay: exponential penalty for older turns
+        # age goes from 1.0 (oldest) to 0.0 (newest)
+        age = 1.0 - recency
+        decay = torch.sigmoid(self.decay_rate)
+        temporal_penalty = decay * age  # 0 for newest, up to decay for oldest
+
+        # Combine semantic relevance + recency boost - temporal penalty
+        scores = torch.sigmoid(raw_scores + recency_bias - temporal_penalty)
 
         return scores
 
