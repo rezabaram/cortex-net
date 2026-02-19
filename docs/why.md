@@ -4,6 +4,9 @@
 
 Every property that would make an agent genuinely useful is missing or faked in current systems.
 
+### Statefulness
+Agents are ephemeral. Kill the process, lose the progress. Training runs vanish. Learned preferences reset. There's no concept of "I was in the middle of something." If an agent crashes halfway through learning a user's patterns, it starts from zero on restart. This makes continuous learning practically impossible — you can't learn over weeks if you can't survive a reboot.
+
 ### Coherence
 Agents have no unified sense of self across interactions. Every context window is a clean slate. The "personality" is a system prompt that gets re-read every turn. There's no continuity of thought, no persistent mental model, no sense of "I was working on X and now I'm picking it back up." It's an amnesia patient reading their own diary, every single time.
 
@@ -36,6 +39,7 @@ cortex-net doesn't solve these problems by building a bigger framework. It solve
 
 | Problem | cortex-net approach |
 |---------|-------------------|
+| Not stateful | All state persisted to disk — weights, checkpoints, logs, learning progress. Resume exactly where you left off after any interruption |
 | No coherence | Situation Encoder maintains continuous representation across interactions |
 | Fragile | Strategy Selector learns fallback strategies; Confidence Estimator triggers graceful degradation |
 | No self-awareness | Confidence Estimator is trained on calibration — the system learns when it doesn't know |

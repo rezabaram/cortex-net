@@ -146,6 +146,29 @@ The system learns from three types of signal:
 - Cheap, fast, and surprisingly well-correlated with human judgment
 - Used to bootstrap training before enough human signal accumulates
 
+## State Management
+
+cortex-net is fully stateful and resumable. All system state is persisted to disk so the agent can survive interruptions — crashes, restarts, deployments — and resume exactly where it left off.
+
+**What gets persisted:**
+- **Model weights** — Checkpoint files for all four components (Memory Gate, Situation Encoder, Strategy Selector, Confidence Estimator)
+- **Training state** — Optimizer state, learning rate schedules, epoch counters, loss history
+- **Interaction logs** — The raw training data: situations, retrievals, outcomes
+- **Component metadata** — Version, last training timestamp, performance metrics
+
+**How it works:**
+- State is saved to a configurable directory (default: `./state/`)
+- Checkpoints are written after each training step (or at configurable intervals)
+- On startup, the system loads the latest checkpoint and resumes — no manual intervention
+- If no checkpoint exists, components initialize to sensible defaults (e.g., Memory Gate falls back to cosine similarity)
+
+**Design rules:**
+- All state must be serializable to disk. No in-memory-only state that matters.
+- Writes are atomic (write to temp, then rename) to prevent corruption from mid-write crashes.
+- State format is versioned so old checkpoints remain loadable after code changes.
+
+---
+
 ## Integration Points
 
 cortex-net is designed to wrap any LLM and any memory system:

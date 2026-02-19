@@ -24,6 +24,7 @@ Current "agents" are chatbots that can call functions. They have no persistent s
 
 Strip away the industry hype. What properties should an intelligent agent actually have?
 
+- **Stateful** — Survives interruptions. All progress persisted to disk, resumes exactly where it left off
 - **Coherent** — A unified sense of self that persists across interactions
 - **Robust** — Graceful degradation when things go wrong, not chain failure
 - **Self-aware** — Knows what it knows, what it doesn't, and when it's confused
@@ -58,3 +59,5 @@ This is cortex-net: a trainable meta-architecture where small neural components 
 4. **Learning is continuous.** Not batch fine-tuning. The agent gets better with every conversation, every success, every failure.
 
 5. **Honest about uncertainty.** The system knows when it doesn't know. This is a trained capability, not a prompt hack.
+
+6. **Stateful and resumable.** The entire system state — trained weights, learning progress, interaction logs, component checkpoints — is persisted to disk. If the agent is interrupted, crashes, or restarts, it picks up exactly where it left off. No lost progress, no retraining from scratch. State is the default, not an afterthought.

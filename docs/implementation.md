@@ -16,6 +16,13 @@ cortex-net is built in five phases, each delivering a testable component. Phase 
 - [ ] Define outcome signals: user feedback, follow-up corrections, task completion
 - [ ] Start collecting data from a live agent (cortex-memory integration)
 
+### Week 1.5: State Management Foundation
+- [ ] Implement `StateManager`: save/load checkpoints to disk with atomic writes
+- [ ] Define checkpoint format: model weights + optimizer state + metadata (version, epoch, timestamp)
+- [ ] Auto-resume on startup: detect latest checkpoint, load it, continue training
+- [ ] Graceful cold start: if no checkpoint exists, initialize defaults (cosine similarity fallback for Memory Gate)
+- [ ] State versioning: embed format version in checkpoints for forward compatibility
+
 ### Week 2: Bilinear Scorer
 - [ ] Implement bilinear scoring function: `score = situation_embed · W · memory_embed`
 - [ ] Build training pipeline: contrastive loss on (relevant, irrelevant) memory pairs
