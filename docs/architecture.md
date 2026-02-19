@@ -80,25 +80,59 @@ loss = max(0, margin - pos_score + neg_score)  # per positive/negative pair
 
 ### 3. Strategy Selector
 
-Learns which approach works for which situation from 10 strategy profiles.
+Learns which approach works for which situation. Two modes: **categorical** (fixed strategy set) and **continuous** (learned strategy space).
 
-**Architecture:** 2-layer MLP classifier with softmax.
+#### Categorical Mode (default)
+
+MLP classifier over a configurable set of strategy profiles.
 
 ```
 Input: situation embedding (384-dim)
 Hidden: Linear(384, 128) → ReLU → Dropout
-Output: Linear(128, 10) → softmax → strategy probabilities
+Output: Linear(128, N) → softmax → strategy probabilities
 ```
 
-**10 strategies:** `deep_research`, `quick_answer`, `clarify_first`, `proactive_suggest`, `hedge_escalate`, `step_by_step`, `creative`, `code_assist`, `summarize`, `empathize`.
+**Predefined strategy sets:**
 
-Each strategy is a `StrategyProfile` dataclass with: id, name, description, system prompt additions, and parameter overrides (temperature, max tokens).
+| Set | Strategies | Use case |
+|-----|-----------|----------|
+| `generic` (7) | deep_research, quick_answer, clarify_first, step_by_step, summarize, creative, empathize | General-purpose agents |
+| `developer` (12) | implement, debug, refactor, review, test, explain, architect, quick_fix, document, explore, optimize, deploy | Coding/development agents |
+| `support` (7) | diagnose, guide, escalate, quick_answer, empathize, clarify, workaround | Customer support agents |
 
-**Exploration:** Epsilon-greedy with temperature-scaled softmax. Epsilon decays over time so the system explores early and exploits later.
+Sets are composable: `merge_strategy_sets("generic", "developer")` combines them (deduplicates by id).
 
-**Diversity tracking:** Normalized entropy of strategy usage history. Target: ≥5 strategies used regularly (not collapsing to always picking the same one).
+Each strategy is a `StrategyProfile` with: id, name, description, prompt framing, reasoning style, response format, and tool permissions.
+
+**Exploration:** Epsilon-greedy with temperature-scaled softmax.
 
 **Training:** Cross-entropy loss on labeled strategy-situation pairs.
+
+#### Continuous Mode
+
+Instead of classifying into N categories, projects situations into a **64-dim strategy embedding space**. Strategy presets are anchor points — the model learns to blend strategies rather than picking one.
+
+```
+Input: situation embedding (384-dim)
+Hidden: Linear(384, 128) → ReLU
+Output: Linear(128, 64) → L2-normalize → strategy embedding
+```
+
+**Anchor points:** Learned embeddings initialized from strategy profile attributes (reasoning style, response format, tool usage). The model learns to place situations near the right anchors.
+
+**Attribute heads:** Five continuous outputs predicted from the strategy embedding:
+
+| Attribute | Range | Meaning |
+|-----------|-------|---------|
+| `reasoning_depth` | 0→1 | direct → thorough |
+| `creativity` | 0→1 | conservative → exploratory |
+| `verbosity` | 0→1 | concise → verbose |
+| `tool_intensity` | 0→1 | no tools → heavy tool use |
+| `caution` | 0→1 | confident → cautious |
+
+**Training:** Contrastive anchor loss (pull toward correct anchor, push from others) + MSE on attribute targets.
+
+**Why continuous?** Real conversations don't fit neat boxes. "Explain this code then refactor it" needs a blend of `explain` and `refactor`, not one or the other. The continuous space captures this naturally.
 
 ---
 
@@ -240,6 +274,7 @@ All state persists to disk. The system survives crashes, restarts, and deploymen
 | Memory Gate (5 scenarios) | P@3 | 0.667 | 0.400 (cosine) | **+67%** |
 | Situation Encoder (3 scenarios) | P@2 | 0.750 | 0.500 (no context) | **+50%** |
 | Strategy Selector (10 scenarios) | Accuracy | 20%* | 10% (fixed) | **+100%** |
+| Developer strategy set | Strategies | 12 | — | implement, debug, refactor, review, test, explain, architect, quick_fix, document, explore, optimize, deploy |
 | Confidence Estimator | ECE | 0.010 | — | **< 0.1 target** |
 | Full comparison (6 scenarios) | P@3 | 0.833 | 0.778 (cosine RAG) | **+7%** |
 

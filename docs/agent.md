@@ -43,7 +43,7 @@ response = agent.chat("Thanks, that worked!")
    └─ MemoryBank.retrieve() with learned scoring
    
 4. Select strategy via Strategy Selector
-   └─ 1 of 10 strategies (deep_research, quick_answer, etc.)
+   └─ From configurable strategy set (generic/developer/support/custom)
    
 5. Estimate confidence via Confidence Estimator
    └─ proceed (≥0.8) / hedge (0.4-0.8) / escalate (<0.4)
@@ -76,6 +76,10 @@ class AgentConfig:
     replay_capacity: int = 10000
     state_dir: str = "./state"
     system_prompt: str = "You are a helpful assistant..."
+    strategy_set: str = None               # "developer", "support", "generic", or None
+    tools_enabled: bool = False            # Enable tool use (file, shell, etc.)
+    tools_workdir: str = "."               # Working directory for tools
+    max_tool_rounds: int = 10              # Max tool call iterations per chat()
 ```
 
 ## Compatible LLM Providers
@@ -97,13 +101,16 @@ Agents live in `agents/<name>/` with a `config.json`:
 ```json
 {
   "name": "Atlas",
-  "description": "DevOps assistant",
+  "description": "Developer agent for cortex-net",
   "model": "MiniMax-M1",
   "base_url": "https://api.minimax.io/v1",
-  "system_prompt": "You are Atlas, a DevOps assistant...",
+  "strategy_set": "developer",
+  "tools_enabled": true,
+  "tools_workdir": "/home/user/project",
+  "system_prompt": "You are Atlas, a developer agent...",
   "initial_memories": [
-    "We use Kubernetes for deployments",
-    "Monitoring: Prometheus + Grafana"
+    "Project uses PyTorch for all neural components",
+    "Tests run with pytest, 195 passing"
   ]
 }
 ```

@@ -36,7 +36,7 @@ Query → Situation Encoder → ┬→ Memory Gate        → relevant memories
 |-----------|---------------|--------|
 | **Situation Encoder** | Fuses text + history + metadata → situation embedding | 858K |
 | **Memory Gate** | Which memories are relevant (replaces naive cosine similarity) | 147K |
-| **Strategy Selector** | Which approach works for which situation (10 strategies) | 51K |
+| **Strategy Selector** | Which approach works for which situation (configurable sets: generic/developer/support) | 51K |
 | **Confidence Estimator** | When it's likely wrong (calibrated, ECE < 0.01) | 50K |
 
 All components train jointly with shared gradients through the Situation Encoder.
@@ -90,7 +90,8 @@ src/cortex_net/
 ├── context_assembler.py      # Full pipeline orchestration
 ├── memory_gate.py            # Bilinear memory relevance scoring
 ├── situation_encoder.py      # MLP: text + history + metadata → embedding
-├── strategy_selector.py      # 10-strategy classification head
+├── strategy_selector.py      # Categorical + continuous strategy selection
+├── tools.py                  # Tool registry (file, shell, edit)
 ├── confidence_estimator.py   # Calibrated confidence (BCE + ECE)
 ├── joint_trainer.py          # End-to-end multi-task training
 ├── state_manager.py          # Atomic checkpointing, auto-resume
