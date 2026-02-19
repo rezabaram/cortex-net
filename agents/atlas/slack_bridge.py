@@ -211,6 +211,13 @@ def run():
                     response = agent.chat(text)
                     # Strip <think>...</think> tags from reasoning models
                     response = re.sub(r'<think>.*?</think>\s*', '', response, flags=re.DOTALL).strip()
+                    if not response:
+                        # Model returned only thinking, no content — retry without tools
+                        log.warning("Empty response after stripping think tags, retrying")
+                        response = agent.chat(text)
+                        response = re.sub(r'<think>.*?</think>\s*', '', response, flags=re.DOTALL).strip()
+                    if not response:
+                        response = "I processed your request but couldn't generate a response. Could you rephrase?"
                     # Convert markdown to Slack mrkdwn
                     response = md_to_slack(response)
                     post_message(CHANNEL_ID, response, thread_ts=ts)
