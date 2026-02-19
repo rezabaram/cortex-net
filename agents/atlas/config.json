@@ -19,6 +19,6 @@
     "CortexAgent: full pipeline with OpenAI-compatible LLM, tool support via function calling",
     "20 modules, 170+ tests, docs at http://192.168.1.155:8000/cortex-net/",
     "Key design decisions: MLP over transformer for fusion, contrastive loss for memory, calibration loss (BCE+ECE) for confidence, atomic writes for all state",
-    "10 strategies: deep_research, quick_answer, clarify_first, proactive_suggest, hedge_escalate, step_by_step, creative, code_assist, summarize, empathize"
+    "Strategy sets: generic (7), developer (12: implement, debug, refactor, review, test, explain, architect, quick_fix, document, explore, optimize, deploy), support (7). Also has ContinuousStrategySelector for learned strategy blending."
   ]
 }
