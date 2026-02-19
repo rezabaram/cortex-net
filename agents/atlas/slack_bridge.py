@@ -97,7 +97,8 @@ def create_agent() -> CortexAgent:
         strategy_set=CFG.get("strategy_set", None),
         tools_enabled=CFG.get("tools_enabled", False),
         tools_workdir=CFG.get("tools_workdir", "."),
-        max_tool_rounds=CFG.get("max_tool_rounds", 5),
+        max_tool_rounds=CFG.get("max_tool_rounds", 25),
+        chat_timeout=CFG.get("chat_timeout", 120),
     )
     agent = CortexAgent(config=config, api_key=LLM_API_KEY)
 

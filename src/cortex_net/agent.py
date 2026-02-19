@@ -79,7 +79,8 @@ class AgentConfig:
     # Tools
     tools_enabled: bool = False
     tools_workdir: str = "."
-    max_tool_rounds: int = 10  # max tool call rounds per chat()
+    max_tool_rounds: int = 25  # max tool call rounds per chat()
+    chat_timeout: int = 120  # max seconds per chat() call
 
     # System prompt base
     system_prompt: str = (
@@ -401,7 +402,16 @@ class CortexAgent:
             call_kwargs["tools"] = self.tool_registry.to_openai_tools()
 
         assistant_text = ""
+        t_tool_start = time.time()
         for _round in range(self.config.max_tool_rounds):
+            # Timeout check
+            if time.time() - t_tool_start > self.config.chat_timeout:
+                import logging
+                logging.getLogger("cortex-agent").warning(
+                    f"Chat timeout after {_round} tool rounds ({self.config.chat_timeout}s)"
+                )
+                assistant_text = assistant_text or "(timed out — too many tool calls)"
+                break
             response = self.client.chat.completions.create(**call_kwargs)
             choice = response.choices[0]
 
