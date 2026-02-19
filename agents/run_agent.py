@@ -29,16 +29,32 @@ def load_agent(agent_name: str, api_key: str) -> CortexAgent:
     with open(config_path) as f:
         cfg = json.load(f)
 
+    # Auto-load OAuth token from OpenClaw if using Anthropic backend
+    backend = cfg.get("backend", "openai")
+    oauth_token = None
+    if backend == "anthropic" and not api_key:
+        auth_path = Path.home() / ".openclaw/agents/main/agent/auth-profiles.json"
+        if auth_path.exists():
+            with open(auth_path) as af:
+                profiles = json.load(af)
+            oauth_token = profiles.get("profiles", {}).get("anthropic:default", {}).get("token")
+
     config = AgentConfig(
         model=cfg.get("model", "MiniMax-M1"),
         base_url=cfg.get("base_url", "https://api.minimax.io/v1"),
         max_tokens=cfg.get("max_tokens", 1024),
+        backend=backend,
+        anthropic_oauth_token=oauth_token,
         state_dir=str(agent_dir / "state"),
         system_prompt=cfg.get("system_prompt", "You are a helpful assistant."),
+        tools_enabled=cfg.get("tools_enabled", False),
+        tools_workdir=cfg.get("tools_workdir", "."),
+        max_tool_rounds=cfg.get("max_tool_rounds", 25),
+        strategy_set=cfg.get("strategy_set", None),
         online_learning=True,
     )
 
-    agent = CortexAgent(config=config, api_key=api_key)
+    agent = CortexAgent(config=config, api_key=api_key or None)
 
     # Seed initial memories if first run
     memories_file = agent_dir / "state" / "memories.json"

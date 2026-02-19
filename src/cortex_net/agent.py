@@ -25,6 +25,11 @@ from typing import Any
 
 from openai import OpenAI
 import torch
+try:
+    import anthropic as anthropic_sdk
+    HAS_ANTHROPIC = True
+except ImportError:
+    HAS_ANTHROPIC = False
 from sentence_transformers import SentenceTransformer
 
 from cortex_net.confidence_estimator import ConfidenceEstimator, ContextSummary
@@ -53,10 +58,12 @@ class ConversationTurn:
 class AgentConfig:
     """Configuration for the live agent."""
 
-    # Model (OpenAI-compatible API)
+    # Model / LLM backend
     model: str = "MiniMax-M1"
     base_url: str = "https://api.minimax.io/v1"
     max_tokens: int = 1024
+    backend: str = "openai"  # "openai" (OpenAI-compatible) or "anthropic" (native Anthropic API)
+    anthropic_oauth_token: str | None = None  # sk-ant-oat01-... for Max subscription
 
     # cortex-net dimensions
     text_dim: int = 384
@@ -170,11 +177,31 @@ class CortexAgent:
         self.config = config or AgentConfig()
         self.device = "cpu"
 
-        # LLM client (OpenAI-compatible)
-        self.client = OpenAI(
-            api_key=api_key or os.environ.get("LLM_API_KEY", ""),
-            base_url=self.config.base_url,
-        )
+        # LLM client
+        self._backend = self.config.backend
+        if self._backend == "anthropic":
+            if not HAS_ANTHROPIC:
+                raise ImportError("pip install anthropic — required for Anthropic backend")
+            token = (
+                api_key
+                or self.config.anthropic_oauth_token
+                or os.environ.get("ANTHROPIC_API_KEY", "")
+            )
+            # OAuth tokens (sk-ant-oat*) use auth_token (Bearer); API keys use api_key (x-api-key)
+            is_oauth = token.startswith("sk-ant-oat")
+            if is_oauth:
+                self._anthropic = anthropic_sdk.Anthropic(auth_token=token)
+                self._anthropic_extra_headers = {"anthropic-beta": "oauth-2025-04-20"}
+            else:
+                self._anthropic = anthropic_sdk.Anthropic(api_key=token)
+                self._anthropic_extra_headers = {}
+            self.client = None  # not used for anthropic backend
+        else:
+            self.client = OpenAI(
+                api_key=api_key or os.environ.get("LLM_API_KEY", ""),
+                base_url=self.config.base_url,
+            )
+            self._anthropic = None
 
         # Text encoder
         self.text_encoder = SentenceTransformer(
@@ -433,75 +460,19 @@ class CortexAgent:
         t_llm = time.time()
         tool_call_count = 0
         tool_names_used = []
-        all_messages = [{"role": "system", "content": system_prompt}] + messages
 
-        call_kwargs = {
-            "model": self.config.model,
-            "max_tokens": self.config.max_tokens,
-            "messages": all_messages,
-        }
-        if self.tool_registry:
-            call_kwargs["tools"] = self.tool_registry.to_openai_tools()
-
-        assistant_text = ""
-        t_tool_start = time.time()
-        for _round in range(self.config.max_tool_rounds):
-            # Timeout check
-            if time.time() - t_tool_start > self.config.chat_timeout:
-                import logging
-                logging.getLogger("cortex-agent").warning(
-                    f"Chat timeout after {_round} tool rounds ({self.config.chat_timeout}s)"
-                )
-                assistant_text = assistant_text or "(timed out — too many tool calls)"
-                break
-            try:
-                response = self.client.chat.completions.create(**call_kwargs)
-            except Exception as api_err:
-                if "400" in str(api_err) and "invalid function arguments" in str(api_err):
-                    # MiniMax rejects malformed tool results — strip last tool messages and retry
-                    import logging
-                    logging.getLogger("cortex-agent").warning(f"API rejected tool call, retrying without: {api_err}")
-                    # Remove the last assistant + tool messages
-                    def _get_role(msg):
-                        return msg.get("role") if isinstance(msg, dict) else getattr(msg, "role", None)
-                    while all_messages and _get_role(all_messages[-1]) == "tool":
-                        all_messages.pop()
-                    if all_messages and _get_role(all_messages[-1]) == "assistant":
-                        all_messages.pop()
-                    all_messages.append({"role": "user", "content": "(tool call failed, please respond without tools)"})
-                    call_kwargs["messages"] = all_messages
-                    call_kwargs.pop("tools", None)
-                    response = self.client.chat.completions.create(**call_kwargs)
-                else:
-                    raise
-            choice = response.choices[0]
-
-            # If no tool calls, we're done
-            if not choice.message.tool_calls:
-                assistant_text = choice.message.content or ""
-                break
-
-            # Process tool calls
-            all_messages.append(choice.message)
-            for tc in choice.message.tool_calls:
-                try:
-                    args = json.loads(tc.function.arguments)
-                except json.JSONDecodeError:
-                    args = {}
-                tool_call_count += 1
-                tool_names_used.append(tc.function.name)
-                result = self.tool_registry.execute(tc.function.name, args)
-                all_messages.append({
-                    "role": "tool",
-                    "tool_call_id": tc.id,
-                    "content": result[:4000],  # cap tool output
-                })
-
-            # Update kwargs for next round
-            call_kwargs["messages"] = all_messages
+        if self._backend == "anthropic":
+            assistant_text = self._call_anthropic_loop(
+                system_prompt, messages, tool_call_count, tool_names_used
+            )
+            tool_call_count = self._last_tool_count
+            tool_names_used = self._last_tool_names
         else:
-            # Hit max rounds — get whatever the last response was
-            assistant_text = choice.message.content or "(max tool rounds reached)"
+            assistant_text = self._call_openai_loop(
+                system_prompt, messages, tool_call_count, tool_names_used
+            )
+            tool_call_count = self._last_tool_count
+            tool_names_used = self._last_tool_names
 
         ilog.llm_ms = (time.time() - t_llm) * 1000
         ilog.response_length = len(assistant_text)
@@ -536,6 +507,174 @@ class CortexAgent:
         if len(self.history) % 10 == 0:
             self._save_state()
 
+        return assistant_text
+
+    def _call_openai_loop(
+        self, system_prompt: str, messages: list[dict], _tc: int, _tn: list
+    ) -> str:
+        """OpenAI-compatible API call with tool loop."""
+        all_messages = [{"role": "system", "content": system_prompt}] + messages
+        call_kwargs = {
+            "model": self.config.model,
+            "max_tokens": self.config.max_tokens,
+            "messages": all_messages,
+        }
+        if self.tool_registry:
+            call_kwargs["tools"] = self.tool_registry.to_openai_tools()
+
+        tool_call_count = 0
+        tool_names_used = []
+        assistant_text = ""
+        t_tool_start = time.time()
+
+        for _round in range(self.config.max_tool_rounds):
+            if time.time() - t_tool_start > self.config.chat_timeout:
+                import logging
+                logging.getLogger("cortex-agent").warning(
+                    f"Chat timeout after {_round} tool rounds ({self.config.chat_timeout}s)"
+                )
+                assistant_text = assistant_text or "(timed out — too many tool calls)"
+                break
+            try:
+                response = self.client.chat.completions.create(**call_kwargs)
+            except Exception as api_err:
+                if "400" in str(api_err) and "invalid function arguments" in str(api_err):
+                    import logging
+                    logging.getLogger("cortex-agent").warning(
+                        f"API rejected tool call, retrying without: {api_err}"
+                    )
+                    def _get_role(msg):
+                        return msg.get("role") if isinstance(msg, dict) else getattr(msg, "role", None)
+                    while all_messages and _get_role(all_messages[-1]) == "tool":
+                        all_messages.pop()
+                    if all_messages and _get_role(all_messages[-1]) == "assistant":
+                        all_messages.pop()
+                    all_messages.append({
+                        "role": "user",
+                        "content": "(tool call failed, please respond without tools)",
+                    })
+                    call_kwargs["messages"] = all_messages
+                    call_kwargs.pop("tools", None)
+                    response = self.client.chat.completions.create(**call_kwargs)
+                else:
+                    raise
+            choice = response.choices[0]
+
+            if not choice.message.tool_calls:
+                assistant_text = choice.message.content or ""
+                break
+
+            all_messages.append(choice.message)
+            for tc in choice.message.tool_calls:
+                try:
+                    args = json.loads(tc.function.arguments)
+                except json.JSONDecodeError:
+                    args = {}
+                tool_call_count += 1
+                tool_names_used.append(tc.function.name)
+                result = self.tool_registry.execute(tc.function.name, args)
+                all_messages.append({
+                    "role": "tool",
+                    "tool_call_id": tc.id,
+                    "content": result[:4000],
+                })
+
+            call_kwargs["messages"] = all_messages
+        else:
+            assistant_text = choice.message.content or "(max tool rounds reached)"
+
+        self._last_tool_count = tool_call_count
+        self._last_tool_names = tool_names_used
+        return assistant_text
+
+    def _call_anthropic_loop(
+        self, system_prompt: str, messages: list[dict], _tc: int, _tn: list
+    ) -> str:
+        """Native Anthropic API call with tool loop."""
+        tool_call_count = 0
+        tool_names_used = []
+        assistant_text = ""
+        t_tool_start = time.time()
+
+        # Convert tools to Anthropic format
+        anthropic_tools = []
+        if self.tool_registry:
+            for oai_tool in self.tool_registry.to_openai_tools():
+                anthropic_tools.append({
+                    "name": oai_tool["function"]["name"],
+                    "description": oai_tool["function"].get("description", ""),
+                    "input_schema": oai_tool["function"].get("parameters", {"type": "object", "properties": {}}),
+                })
+
+        # Filter out system messages from the message list (Anthropic uses separate system param)
+        api_messages = [m for m in messages if m.get("role") != "system"]
+
+        for _round in range(self.config.max_tool_rounds):
+            if time.time() - t_tool_start > self.config.chat_timeout:
+                import logging
+                logging.getLogger("cortex-agent").warning(
+                    f"Chat timeout after {_round} tool rounds ({self.config.chat_timeout}s)"
+                )
+                assistant_text = assistant_text or "(timed out — too many tool calls)"
+                break
+
+            call_kwargs: dict[str, Any] = {
+                "model": self.config.model,
+                "max_tokens": self.config.max_tokens,
+                "system": system_prompt,
+                "messages": api_messages,
+            }
+            if anthropic_tools:
+                call_kwargs["tools"] = anthropic_tools
+            if self._anthropic_extra_headers:
+                call_kwargs["extra_headers"] = self._anthropic_extra_headers
+
+            try:
+                response = self._anthropic.messages.create(**call_kwargs)
+            except Exception as e:
+                import logging
+                logging.getLogger("cortex-agent").error(f"Anthropic API error: {e}")
+                raise
+
+            # Extract text and tool use from response content blocks
+            text_parts = []
+            tool_uses = []
+            for block in response.content:
+                if block.type == "text":
+                    text_parts.append(block.text)
+                elif block.type == "tool_use":
+                    tool_uses.append(block)
+
+            if text_parts:
+                assistant_text = "\n".join(text_parts)
+
+            if response.stop_reason != "tool_use" or not tool_uses:
+                break
+
+            # Build assistant message with all content blocks
+            api_messages.append({"role": "assistant", "content": response.content})
+
+            # Execute tools and add results
+            tool_results = []
+            for tu in tool_uses:
+                tool_call_count += 1
+                tool_names_used.append(tu.name)
+                result = self.tool_registry.execute(tu.name, tu.input or {})
+                tool_results.append({
+                    "type": "tool_result",
+                    "tool_use_id": tu.id,
+                    "content": result[:4000],
+                })
+            api_messages.append({"role": "user", "content": tool_results})
+        else:
+            assistant_text = assistant_text or "(max tool rounds reached)"
+
+        # Strip <think>...</think> tags (reasoning models)
+        import re
+        assistant_text = re.sub(r"<think>.*?</think>", "", assistant_text, flags=re.DOTALL).strip()
+
+        self._last_tool_count = tool_call_count
+        self._last_tool_names = tool_names_used
         return assistant_text
 
     def add_memories(self, memories: list[str]) -> None:

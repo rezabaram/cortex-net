@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Slack bridge for Atlas — polls #atlas channel and responds via cortex-net.
+"""Slack bridge for Atlas — polls a channel, responds via cortex-net.
 
-Uses Slack Web API only (no Socket Mode) to avoid conflicting with OpenClaw.
-Runs as a persistent process (systemd service).
+Uses Slack Web API (no Socket Mode) to coexist with OpenClaw.
+Runs as a systemd user service.
 """
 
 import json
@@ -12,239 +12,198 @@ import re
 import sys
 import time
 from pathlib import Path
+from urllib.request import Request, urlopen
+from urllib.parse import urlencode
 
-import urllib.request
-import urllib.parse
-import urllib.error
-
-# Add cortex-net src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
 from cortex_net.agent import CortexAgent, AgentConfig
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger("atlas-slack")
 
-# --- Config ---
 AGENT_DIR = Path(__file__).parent
-CONFIG_PATH = AGENT_DIR / "config.json"
+STATE_DIR = AGENT_DIR / "state"
+TS_FILE = STATE_DIR / "last_ts"
 
-with open(CONFIG_PATH) as f:
-    CFG = json.load(f)
+# ── Slack helpers ──────────────────────────────────────────────────────────────
 
-SLACK_TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
-LLM_API_KEY = os.environ.get("LLM_API_KEY", "")
-CHANNEL_ID = os.environ.get("ATLAS_CHANNEL", "C0AGR9AAAAU")
-POLL_INTERVAL = float(os.environ.get("POLL_INTERVAL", "2"))
+class SlackClient:
+    """Minimal Slack Web API client."""
 
-# Bot user ID (will be fetched on startup)
-BOT_USER_ID = ""
+    def __init__(self, token: str, channel: str):
+        self.token = token
+        self.channel = channel
+        self.bot_user_id = self._call("auth.test")["user_id"]
 
+    def _call(self, method: str, **kwargs) -> dict:
+        data = urlencode(kwargs).encode()
+        req = Request(
+            f"https://slack.com/api/{method}",
+            data=data,
+            headers={"Authorization": f"Bearer {self.token}"},
+        )
+        resp = json.loads(urlopen(req).read())
+        if not resp.get("ok"):
+            raise RuntimeError(f"Slack {method}: {resp.get('error', resp)}")
+        return resp
 
-def slack_api(method: str, **kwargs) -> dict:
-    """Call a Slack Web API method."""
-    url = f"https://slack.com/api/{method}"
-    data = urllib.parse.urlencode(kwargs).encode()
-    req = urllib.request.Request(
-        url, data=data,
-        headers={"Authorization": f"Bearer {SLACK_TOKEN}"},
-    )
-    resp = urllib.request.urlopen(req)
-    return json.loads(resp.read())
+    def history(self, oldest: str, limit: int = 5) -> list[dict]:
+        return self._call("conversations.history", channel=self.channel, oldest=oldest, limit=limit).get("messages", [])
 
-
-def get_bot_user_id() -> str:
-    """Get the bot's own user ID."""
-    resp = slack_api("auth.test")
-    if resp.get("ok"):
-        return resp["user_id"]
-    raise RuntimeError(f"auth.test failed: {resp}")
+    def post(self, text: str) -> None:
+        self._call("chat.postMessage", channel=self.channel, text=text)
 
 
-def post_message(channel: str, text: str, thread_ts: str | None = None) -> None:
-    """Post a message to a Slack channel."""
-    kwargs = {"channel": channel, "text": text}
-    if thread_ts:
-        kwargs["thread_ts"] = thread_ts
-    resp = slack_api("chat.postMessage", **kwargs)
-    if not resp.get("ok"):
-        log.error(f"Failed to post message: {resp.get('error')}")
+# ── Markdown → Slack mrkdwn ───────────────────────────────────────────────────
+
+def md_to_slack(text: str) -> str:
+    text = re.sub(r"```\w*\n", "```\n", text)                              # strip lang from fences
+    text = re.sub(r"^#{1,6}\s+(.+)$", r"*\1*", text, flags=re.MULTILINE)   # headers → bold
+    text = re.sub(r"\*\*(.+?)\*\*", r"*\1*", text)                         # **bold** → *bold*
+    text = re.sub(r"~~(.+?)~~", r"~\1~", text)                             # ~~strike~~ → ~strike~
+    text = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r"<\2|\1>", text)            # [t](u) → <u|t>
+    text = re.sub(r"^(\s*)[-*]\s+", r"\1• ", text, flags=re.MULTILINE)     # bullets → •
+    text = re.sub(r"^-{3,}$", "───────", text, flags=re.MULTILINE)         # hr
+    # tables: drop separator rows, strip outer pipes
+    lines = []
+    for line in text.split("\n"):
+        if re.match(r"^\|[\s\-:|]+\|$", line):
+            continue
+        if line.startswith("|") and line.endswith("|"):
+            line = "  ".join(c.strip() for c in line[1:-1].split("|"))
+        lines.append(line)
+    return "\n".join(lines)
 
 
-def get_history(channel: str, oldest: str = "0", limit: int = 10) -> list[dict]:
-    """Get recent messages from a channel."""
-    url = f"https://slack.com/api/conversations.history?channel={channel}&oldest={oldest}&limit={limit}"
-    req = urllib.request.Request(url, headers={"Authorization": f"Bearer {SLACK_TOKEN}"})
-    resp = json.loads(urllib.request.urlopen(req).read())
-    if resp.get("ok"):
-        return resp.get("messages", [])
-    log.error(f"conversations.history failed: {resp.get('error')}")
-    return []
+# ── Agent factory ─────────────────────────────────────────────────────────────
+
+def load_config() -> dict:
+    with open(AGENT_DIR / "config.json") as f:
+        return json.load(f)
 
 
-def create_agent() -> CortexAgent:
-    """Create and seed the Atlas agent."""
+def create_agent(cfg: dict) -> CortexAgent:
+    backend = cfg.get("backend", "openai")
+    oauth_token = None
+    api_key: str | None = os.environ.get("LLM_API_KEY")
+
+    if backend == "anthropic":
+        auth_path = Path.home() / ".openclaw/agents/main/agent/auth-profiles.json"
+        if auth_path.exists():
+            with open(auth_path) as f:
+                oauth_token = json.load(f).get("profiles", {}).get("anthropic:default", {}).get("token")
+        api_key = None
+
     config = AgentConfig(
-        model=CFG.get("model", "MiniMax-M1"),
-        base_url=CFG.get("base_url", "https://api.minimax.io/v1"),
-        state_dir=str(AGENT_DIR / "state"),
-        system_prompt=CFG.get("system_prompt", "You are a helpful assistant."),
+        model=cfg.get("model", "MiniMax-M1"),
+        base_url=cfg.get("base_url", "https://api.minimax.io/v1"),
+        backend=backend,
+        anthropic_oauth_token=oauth_token,
+        state_dir=str(STATE_DIR),
+        system_prompt=cfg.get("system_prompt", "You are a helpful assistant."),
         online_learning=True,
         update_every=3,
-        strategy_set=CFG.get("strategy_set", None),
-        tools_enabled=CFG.get("tools_enabled", False),
-        tools_workdir=CFG.get("tools_workdir", "."),
-        max_tool_rounds=CFG.get("max_tool_rounds", 25),
-        chat_timeout=CFG.get("chat_timeout", 120),
+        strategy_set=cfg.get("strategy_set"),
+        tools_enabled=cfg.get("tools_enabled", False),
+        tools_workdir=cfg.get("tools_workdir", "."),
+        max_tool_rounds=cfg.get("max_tool_rounds", 25),
+        chat_timeout=cfg.get("chat_timeout", 120),
     )
-    agent = CortexAgent(config=config, api_key=LLM_API_KEY)
+    agent = CortexAgent(config=config, api_key=api_key)
 
-    # Seed initial memories if fresh start
-    if len(agent.memory_bank) == 0 and "initial_memories" in CFG:
-        log.info(f"Seeding {len(CFG['initial_memories'])} initial memories")
-        agent.add_memories(CFG["initial_memories"])
+    if len(agent.memory_bank) == 0 and "initial_memories" in cfg:
+        log.info(f"Seeding {len(cfg['initial_memories'])} memories")
+        agent.add_memories(cfg["initial_memories"])
 
     return agent
 
 
-def md_to_slack(text: str) -> str:
-    """Convert Markdown to Slack mrkdwn format."""
-    # Code blocks: ```lang\n...\n``` → ```\n...\n```  (Slack ignores lang)
-    text = re.sub(r'```\w*\n', '```\n', text)
+# ── Main loop ─────────────────────────────────────────────────────────────────
 
-    # Headers: ### Header → *Header*
-    text = re.sub(r'^#{1,6}\s+(.+)$', r'*\1*', text, flags=re.MULTILINE)
-
-    # Bold: **text** → *text*
-    text = re.sub(r'\*\*(.+?)\*\*', r'*\1*', text)
-
-    # Italic: _text_ stays the same in Slack
-    # But MD single *text* for italic conflicts with Slack bold
-    # Leave as-is since we converted ** to * above
-
-    # Strikethrough: ~~text~~ → ~text~
-    text = re.sub(r'~~(.+?)~~', r'~\1~', text)
-
-    # Links: [text](url) → <url|text>
-    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<\2|\1>', text)
-
-    # Inline code: `code` stays the same
-
-    # Unordered lists: - item → • item
-    text = re.sub(r'^(\s*)[-*]\s+', r'\1• ', text, flags=re.MULTILINE)
-
-    # Ordered lists: 1. item → 1. item (Slack handles these ok)
-
-    # Horizontal rules: --- → ───────
-    text = re.sub(r'^-{3,}$', '───────────────', text, flags=re.MULTILINE)
-
-    # Tables: convert to readable format
-    lines = text.split('\n')
-    result = []
-    for line in lines:
-        # Skip separator rows (|---|---|)
-        if re.match(r'^\|[\s\-:|]+\|$', line):
-            continue
-        # Table rows: | a | b | → a  |  b
-        if line.startswith('|') and line.endswith('|'):
-            cells = [c.strip() for c in line[1:-1].split('|')]
-            result.append('  '.join(cells))
-        else:
-            result.append(line)
-
-    return '\n'.join(result)
-
+MAX_CONSECUTIVE_ERRORS = 5
+BACKOFF_BASE = 5          # seconds
+BACKOFF_MAX = 300         # 5 min cap
 
 def run():
-    """Main loop: poll for messages, respond via Atlas."""
-    global BOT_USER_ID
+    token = os.environ.get("SLACK_BOT_TOKEN", "")
+    channel = os.environ.get("ATLAS_CHANNEL", "C0AGR9AAAAU")
+    poll_interval = float(os.environ.get("POLL_INTERVAL", "2"))
 
-    if not SLACK_TOKEN:
+    if not token:
         log.error("SLACK_BOT_TOKEN not set")
         sys.exit(1)
-    if not LLM_API_KEY:
+
+    cfg = load_config()
+    if cfg.get("backend", "openai") != "anthropic" and not os.environ.get("LLM_API_KEY"):
         log.error("LLM_API_KEY not set")
         sys.exit(1)
 
-    BOT_USER_ID = get_bot_user_id()
-    log.info(f"Bot user ID: {BOT_USER_ID}")
+    slack = SlackClient(token, channel)
+    log.info(f"Bot user: {slack.bot_user_id}")
 
-    agent = create_agent()
-    log.info(f"Atlas ready. Listening on #{CHANNEL_ID}. Memories: {len(agent.memory_bank)}")
+    agent = create_agent(cfg)
+    log.info(f"Atlas ready — {len(agent.memory_bank)} memories, model={cfg.get('model')}")
 
-    # Persist last_ts so restarts don't skip messages
-    ts_file = AGENT_DIR / "state" / "last_ts"
-    ts_file.parent.mkdir(parents=True, exist_ok=True)
-    if ts_file.exists():
-        last_ts = ts_file.read_text().strip()
-        log.info(f"Resuming from last_ts={last_ts}")
-    else:
-        last_ts = str(time.time() - 300)
-        log.info(f"Fresh start, looking back 5 min")
+    # Resume from last processed timestamp
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    last_ts = TS_FILE.read_text().strip() if TS_FILE.exists() else str(time.time())
 
-    log.info(f"Entering poll loop, last_ts={last_ts}")
+    consecutive_errors = 0
+
     while True:
         try:
-            messages = get_history(CHANNEL_ID, oldest=last_ts, limit=5)
-            if messages:
-                log.info(f"Poll: {len(messages)} messages (last_ts={last_ts})")
+            messages = slack.history(oldest=last_ts)
 
-            # Process in chronological order (API returns newest first)
+            # Chronological order (API returns newest-first)
             for msg in reversed(messages):
-                # Skip Atlas's own thread replies (its responses)
-                # but allow top-level messages (could be from OpenClaw or users)
-                if msg.get("user") == BOT_USER_ID and msg.get("thread_ts"):
-                    log.info(f"Skipping own thread reply: {msg['ts']}")
-                    last_ts = msg["ts"]
-                    ts_file.write_text(last_ts)
-                    continue
-                # Skip non-text messages
-                text = msg.get("text", "").strip()
-                if not text:
-                    continue
-
                 ts = msg["ts"]
-                user = msg.get("user", "unknown")
-                log.info(f"Message from {user}: {text[:80]}")
+                user = msg.get("user", "")
+                text = msg.get("text", "").strip()
 
-                # Get response from Atlas
+                # Skip: own messages, empty, subtypes (joins, pins, etc.)
+                if user == slack.bot_user_id or not text or msg.get("subtype"):
+                    last_ts = ts
+                    continue
+
+                log.info(f"[{user}] {text[:100]}")
+
                 try:
                     response = agent.chat(text)
-                    # Strip <think>...</think> tags from reasoning models
-                    response = re.sub(r'<think>.*?</think>\s*', '', response, flags=re.DOTALL).strip()
+                    # Strip <think> tags from reasoning models
+                    response = re.sub(r"<think>.*?</think>\s*", "", response, flags=re.DOTALL).strip()
                     if not response:
-                        # Model returned only thinking, no content — retry without tools
-                        log.warning("Empty response after stripping think tags, retrying")
-                        response = agent.chat(text)
-                        response = re.sub(r'<think>.*?</think>\s*', '', response, flags=re.DOTALL).strip()
-                    if not response:
-                        response = "I processed your request but couldn't generate a response. Could you rephrase?"
-                    # Convert markdown to Slack mrkdwn
-                    response = md_to_slack(response)
-                    post_message(CHANNEL_ID, response)
-                    log.info(f"Responded ({len(response)} chars)")
+                        response = "(no response generated)"
+                    slack.post(md_to_slack(response))
+                    log.info(f"Replied ({len(response)} chars)")
+                    consecutive_errors = 0
                 except Exception as e:
-                    log.error(f"Agent error: {e}")
-                    post_message(CHANNEL_ID, f"⚠️ Error: {e}")
+                    consecutive_errors += 1
+                    log.error(f"LLM error ({consecutive_errors}/{MAX_CONSECUTIVE_ERRORS}): {e}")
+
+                    if consecutive_errors >= MAX_CONSECUTIVE_ERRORS:
+                        backoff = min(BACKOFF_BASE * (2 ** consecutive_errors), BACKOFF_MAX)
+                        log.warning(f"Too many errors, backing off {backoff}s")
+                        time.sleep(backoff)
 
                 last_ts = ts
-                ts_file.write_text(last_ts)
 
-            # Save periodically
-            if agent.stats()["conversation_turns"] % 20 == 0 and agent.stats()["conversation_turns"] > 0:
+            # Persist cursor
+            TS_FILE.write_text(last_ts)
+
+            # Save agent state every 20 turns
+            turns = agent.stats()["conversation_turns"]
+            if turns > 0 and turns % 20 == 0:
                 agent.save()
 
         except KeyboardInterrupt:
-            log.info("Shutting down...")
-            agent.save()
             break
         except Exception as e:
             log.error(f"Poll error: {e}")
 
-        time.sleep(POLL_INTERVAL)
+        time.sleep(poll_interval)
+
+    agent.save()
+    log.info("Shutdown complete")
 
 
 if __name__ == "__main__":
