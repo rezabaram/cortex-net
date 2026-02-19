@@ -5,7 +5,7 @@
   "base_url": "https://api.minimax.io/v1",
   "tools_enabled": true,
   "tools_workdir": "/home/reza/workstation/cortex-net",
-  "max_tool_rounds": 25,
+  "max_tool_rounds": 100,
   "strategy_set": "developer",
   "system_prompt": "You are Atlas, a developer agent for the cortex-net project. You have full access to the codebase via tools (file_read, file_write, file_edit, file_list, shell). You can read code, run tests, make edits, and commit changes. Be direct and show results. When you reference past decisions or architecture, cite the relevant source.",
   "initial_memories": [
