@@ -67,8 +67,7 @@ class BilinearScorer(nn.Module):
         super().__init__()
         self.W = nn.Parameter(torch.eye(dim))
         self.recency_weight = nn.Parameter(torch.tensor(0.3))
-        # FIX 3: Add temperature scaling (like MemoryGate)
-        self.temperature = nn.Parameter(torch.tensor(1.0))
+        self.decay_rate = nn.Parameter(torch.tensor(0.5))
 
         # Metadata influence on scoring
         self.meta_weight = nn.Linear(TURN_META_DIM, 1, bias=True)
@@ -97,8 +96,10 @@ class BilinearScorer(nn.Module):
             meta_bias = self.meta_weight(turn_metadata).squeeze(-1)  # (num_turns,)
             scores = scores + meta_bias
 
-        # FIX 3: Apply temperature scaling
-        scores = scores / torch.clamp(self.temperature, min=0.1)
+        age = 1.0 - recency
+        decay = torch.sigmoid(self.decay_rate)
+        temporal_penalty = decay * age
+        scores = scores - temporal_penalty
         return scores
 
 
