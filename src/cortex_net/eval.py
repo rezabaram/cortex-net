@@ -24,18 +24,18 @@ class RetrievalMetrics:
     num_relevant: int
 
 
-def precision_at_k(retrieved_indices: torch.Tensor, relevant_indices: set[int], k: int) -> float:
+def precision_at_k(retrieved_indices: torch.Tensor | list, relevant_indices: set[int], k: int) -> float:
     """Precision@k: fraction of top-k that are relevant."""
-    top_k = retrieved_indices[:k].tolist()
+    top_k = retrieved_indices[:k].tolist() if hasattr(retrieved_indices, 'tolist') else list(retrieved_indices[:k])
     hits = sum(1 for idx in top_k if idx in relevant_indices)
     return hits / k if k > 0 else 0.0
 
 
-def recall_at_k(retrieved_indices: torch.Tensor, relevant_indices: set[int], k: int) -> float:
+def recall_at_k(retrieved_indices: torch.Tensor | list, relevant_indices: set[int], k: int) -> float:
     """Recall@k: fraction of relevant items found in top-k."""
     if not relevant_indices:
         return 0.0
-    top_k = set(retrieved_indices[:k].tolist())
+    top_k = set(retrieved_indices[:k].tolist() if hasattr(retrieved_indices, 'tolist') else retrieved_indices[:k])
     hits = len(top_k & relevant_indices)
     return hits / len(relevant_indices)
 
