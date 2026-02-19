@@ -49,6 +49,22 @@ class InteractionLog:
     confidence: float = 0.0
     confidence_action: str = ""  # proceed / hedge / escalate
 
+    # Conversation Gate
+    history_turns_total: int = 0
+    history_turns_selected: int = 0
+    conv_gate_threshold: float = 0.0
+
+    # Context assembly
+    context_messages: int = 0         # messages sent to LLM
+    context_chars: int = 0            # total chars in prompt (system + messages)
+    system_prompt_chars: int = 0      # system prompt size
+
+    # LLM
+    llm_model: str = ""
+    llm_input_tokens: int = 0         # from API response usage
+    llm_output_tokens: int = 0
+    llm_total_tokens: int = 0
+
     # Response
     response_length: int = 0
     tool_calls: int = 0
@@ -145,11 +161,18 @@ class AgentMonitor:
         tool_info = f"tools={entry.tool_calls}" if entry.tool_calls else ""
         learn_info = "📚 UPDATED" if entry.online_update else ""
 
+        ctx_info = f"ctx={entry.context_messages}msg/{entry.context_chars}ch"
+        token_info = f"tok={entry.llm_input_tokens}→{entry.llm_output_tokens}" if entry.llm_input_tokens else ""
+        gate_info = f"gate={entry.history_turns_selected}/{entry.history_turns_total}" if entry.history_turns_total else ""
+
         parts = [
             f"[turn {entry.turn_number}]",
             f"strat={entry.strategy_id}",
             f"conf={entry.confidence:.2f}",
             mem_info,
+            gate_info,
+            ctx_info,
+            token_info,
             f"resp={entry.response_length}ch",
             f"{entry.total_ms:.0f}ms",
             tool_info,

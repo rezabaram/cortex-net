@@ -444,7 +444,9 @@ class CortexAgent:
                 timestamps=[t.timestamp for t in history_window],
             )
             messages = ctx.messages
-            # Log conversation gate stats
+            ilog.history_turns_total = len(history_window)
+            ilog.history_turns_selected = len(ctx.selected_indices)
+            ilog.conv_gate_threshold = round(ctx.threshold, 3) if hasattr(ctx, 'threshold') else 0.0
             import logging
             logging.getLogger("cortex-agent").info(
                 f"ConvGate: {len(ctx.selected_indices)}/{len(history_window)} turns selected, "
@@ -461,18 +463,28 @@ class CortexAgent:
         tool_call_count = 0
         tool_names_used = []
 
+        # Log context size before LLM call
+        ilog.context_messages = len(messages) + 1  # +1 for the new user message
+        ilog.system_prompt_chars = len(system_prompt)
+        ilog.context_chars = len(system_prompt) + sum(
+            len(m.get("content", "") if isinstance(m.get("content"), str) else str(m.get("content", "")))
+            for m in messages
+        )
+        ilog.llm_model = self.config.model
+
         if self._backend == "anthropic":
             assistant_text = self._call_anthropic_loop(
                 system_prompt, messages, tool_call_count, tool_names_used
             )
-            tool_call_count = self._last_tool_count
-            tool_names_used = self._last_tool_names
         else:
             assistant_text = self._call_openai_loop(
                 system_prompt, messages, tool_call_count, tool_names_used
             )
-            tool_call_count = self._last_tool_count
-            tool_names_used = self._last_tool_names
+        tool_call_count = self._last_tool_count
+        tool_names_used = self._last_tool_names
+        ilog.llm_input_tokens = self._last_input_tokens
+        ilog.llm_output_tokens = self._last_output_tokens
+        ilog.llm_total_tokens = self._last_input_tokens + self._last_output_tokens
 
         ilog.llm_ms = (time.time() - t_llm) * 1000
         ilog.response_length = len(assistant_text)
@@ -585,6 +597,9 @@ class CortexAgent:
 
         self._last_tool_count = tool_call_count
         self._last_tool_names = tool_names_used
+        usage = getattr(response, "usage", None)
+        self._last_input_tokens = getattr(usage, "prompt_tokens", 0) if usage else 0
+        self._last_output_tokens = getattr(usage, "completion_tokens", 0) if usage else 0
         return assistant_text
 
     def _call_anthropic_loop(
@@ -675,6 +690,9 @@ class CortexAgent:
 
         self._last_tool_count = tool_call_count
         self._last_tool_names = tool_names_used
+        usage = getattr(response, "usage", None)
+        self._last_input_tokens = getattr(usage, "input_tokens", 0) if usage else 0
+        self._last_output_tokens = getattr(usage, "output_tokens", 0) if usage else 0
         return assistant_text
 
     def add_memories(self, memories: list[str]) -> None:

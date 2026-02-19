@@ -277,6 +277,67 @@ Gate wins where cosine fails: distractor rejection, past failure recall, user pr
 
 ---
 
+---
+
+## Phase 6: Scale Benchmark — 🔜 NEXT
+
+**Goal:** Prove cortex-net's context assembly outperforms baselines at scale, where "just shove everything in the context window" stops working.
+
+### Why this matters
+With 1M token context windows, naive approaches work fine for small sessions. cortex-net's value is selecting the right 0.1% from a massive history. This phase proves that claim with numbers.
+
+### Synthetic History Generator
+- [ ] Generate 6 months of realistic agent interaction history
+- [ ] 10-20K conversation turns across diverse topics (coding, debugging, architecture, ops, preferences)
+- [ ] Temporal structure: recurring themes, topic drift, seasonal patterns
+- [ ] Embed everything, load into MemoryBank
+
+### Evaluation Dataset
+- [ ] 50 queries requiring specific buried knowledge (not surface-level text matches)
+- [ ] Categories: cross-session recall, preference memory, failure pattern recognition, temporal context ("what did we decide last month about X?")
+- [ ] Ground truth: which memories/turns should be retrieved for each query
+
+### Baselines
+- [ ] **Cosine top-k**: standard RAG with sentence-transformer similarity
+- [ ] **BM25**: keyword-based retrieval
+- [ ] **Random sample**: control baseline
+- [ ] **Full context**: everything in the window (up to token limit) — tests whether LLM intelligence alone suffices
+- [ ] **cortex-net**: Memory Gate + Situation Encoder + Conversation Gate
+
+### Scoring Pipeline
+- [ ] Automated: Precision@k, Recall@k, MRR
+- [ ] LLM-as-judge: response quality scoring on a 1-5 scale
+- [ ] Cost metric: tokens used per query (cortex-net should use 10-100x fewer)
+- [ ] Latency: end-to-end response time
+
+**Exit criteria:** cortex-net beats cosine top-k by ≥15% on precision and uses ≥10x fewer tokens than full-context approach.
+
+---
+
+## Phase 7: Integration Layer — 🔜 PLANNED
+
+**Goal:** Package cortex-net as a reusable context preprocessing layer that any LLM application can use.
+
+### Core API
+- [ ] `ContextFilter`: input = (query, history, memories) → output = optimally selected subset
+- [ ] Provider-agnostic: works with OpenAI, Anthropic, local models
+- [ ] Token-budget-aware: "give me the best context that fits in N tokens"
+- [ ] Pluggable into OpenClaw, LangChain, raw API calls
+
+### Deployment modes
+- [ ] Library: `pip install cortex-net`, import and use
+- [ ] Service: HTTP endpoint for context filtering
+- [ ] OpenClaw plugin: native integration (already partially done via cortex-memory extension)
+
+### Pre-trained weights
+- [ ] Ship default weights trained on Phase 6 synthetic data
+- [ ] Fine-tuning API for domain-specific adaptation
+- [ ] Zero-shot mode: works without training (cosine fallback)
+
+**Exit criteria:** A developer can `pip install cortex-net` and get better context assembly in <10 lines of code.
+
+---
+
 ## Open Questions
 
 These are things we don't know yet and will figure out during implementation:
