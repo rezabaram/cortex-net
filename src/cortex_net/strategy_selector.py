@@ -323,6 +323,9 @@ class ContinuousStrategyOutput:
     nearest_strategies: list[str]     # ordered by proximity
     weights: dict[str, float]         # how much each anchor contributes
     attributes: dict[str, float]      # interpolated attributes
+    entropy: float = 0.0              # uncertainty measure — high = ambiguous
+    certainty: bool = True            # True if entropy < threshold
+    fallback: str | None = None       # "clarify" if uncertain, else None
 
     @property
     def primary(self) -> str:
@@ -482,11 +485,27 @@ class ContinuousStrategySelector(nn.Module):
 
             attrs = self._predict_attributes(emb)
 
+        # Compute entropy and certainty from weight distribution
+        weight_vals = weights[weights > 0]
+        if weight_vals.numel() > 0:
+            entropy = -(weight_vals * weight_vals.log()).sum()
+            max_entropy = torch.tensor(float(n)).log()
+            entropy_norm = (entropy / max_entropy).item() if max_entropy > 0 else 0.0
+            certainty = entropy_norm < 0.5
+            fallback = "clarify" if not certainty else None
+        else:
+            entropy_norm = 0.0
+            certainty = True
+            fallback = None
+
         return ContinuousStrategyOutput(
             embedding=emb,
             nearest_strategies=nearest,
             weights=weight_dict,
             attributes=attrs,
+            entropy=entropy_norm,
+            certainty=certainty,
+            fallback=fallback,
         )
 
     def _predict_attributes(self, emb: torch.Tensor) -> dict[str, float]:
@@ -550,6 +569,9 @@ class StrategySelection:
     strategy: StrategyProfile
     confidence: float
     probabilities: dict[str, float]
+    entropy: float = 0.0          # uncertainty measure — high = ambiguous
+    certainty: bool = True        # True if entropy < threshold
+    fallback: str | None = None   # "clarify" if uncertain, else None
 
 
 class StrategySelector(nn.Module):
@@ -622,7 +644,30 @@ class StrategySelector(nn.Module):
             strategy=strategy,
             confidence=probs[idx].item(),
             probabilities=prob_dict,
+            entropy=self.compute_entropy(probs),
+            certainty=self.compute_certainty(probs),
+            fallback=self.compute_fallback(probs),
         )
+
+    def compute_entropy(self, probs: torch.Tensor) -> float:
+        """Compute entropy of probability distribution."""
+        p = probs[probs > 0]
+        if p.numel() == 0:
+            return 0.0
+        entropy = -(p * p.log()).sum()
+        max_entropy = torch.tensor(float(self.num_strategies)).log()
+        return (entropy / max_entropy).item() if max_entropy > 0 else 0.0
+
+    def compute_certainty(self, probs: torch.Tensor, threshold: float = 0.5) -> bool:
+        """Compute certainty based on entropy threshold."""
+        entropy = self.compute_entropy(probs)
+        return entropy < threshold
+
+    def compute_fallback(self, probs: torch.Tensor) -> str | None:
+        """Return fallback action if uncertain."""
+        if not self.compute_certainty(probs):
+            return "clarify"
+        return None
 
     def strategy_loss(
         self,

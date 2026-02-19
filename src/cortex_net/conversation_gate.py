@@ -98,8 +98,15 @@ class ConversationGate(nn.Module):
         """
         scores = self.score_turns(situation, turn_embeddings)
 
-        # Dynamic threshold
-        threshold = torch.sigmoid(self.threshold_logit)
+        # Adaptive threshold: absolute OR relative to score distribution
+        # This handles same-domain conversations where everything scores high
+        abs_threshold = torch.sigmoid(self.threshold_logit)
+        if len(scores) > 4:
+            # Relative: mean + 0.5 * std — only keep turns that stand out
+            rel_threshold = scores.mean() + 0.5 * scores.std()
+            threshold = torch.max(abs_threshold, rel_threshold)
+        else:
+            threshold = abs_threshold
 
         # Select turns above threshold
         selected = scores >= threshold
