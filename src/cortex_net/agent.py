@@ -385,13 +385,26 @@ class CortexAgent:
         system_prompt = "\n".join(system_parts)
 
         # Step 7: Build messages — Conversation Gate selects relevant history
-        history_window = self.history[-20:]  # candidate pool
+        history_window = self.history  # full history — gate selects what's relevant
         if history_window and situation is not None:
-            # Embed each history turn
-            turn_texts = [t.content for t in history_window]
-            turn_embs = self.text_encoder.encode(turn_texts, convert_to_tensor=True)
-            if turn_embs.device != self.device:
-                turn_embs = turn_embs.to(self.device)
+            # Incremental embedding: only encode new turns, cache the rest
+            if not hasattr(self, '_history_emb_cache'):
+                self._history_emb_cache = torch.empty(0, 384, device=self.device)
+
+            n_cached = self._history_emb_cache.shape[0]
+            n_total = len(history_window)
+
+            if n_total > n_cached:
+                # Encode only new turns
+                new_texts = [t.content for t in history_window[n_cached:]]
+                new_embs = self.text_encoder.encode(new_texts, convert_to_tensor=True)
+                if new_embs.device != self.device:
+                    new_embs = new_embs.to(self.device)
+                if new_embs.dim() == 1:
+                    new_embs = new_embs.unsqueeze(0)
+                self._history_emb_cache = torch.cat([self._history_emb_cache, new_embs], dim=0)
+
+            turn_embs = self._history_emb_cache[:n_total]
 
             # Gate selects relevant turns
             ctx = self.conversation_gate.select_turns(
@@ -402,7 +415,7 @@ class CortexAgent:
                 max_turns=10,
             )
             messages = ctx.messages
-            # Log conversation gate stats via monitor one-liner
+            # Log conversation gate stats
             import logging
             logging.getLogger("cortex-agent").info(
                 f"ConvGate: {len(ctx.selected_indices)}/{len(history_window)} turns selected, "
