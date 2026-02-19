@@ -23,6 +23,7 @@ The result: an agent that gets meaningfully better at its job over time, without
 - [Training & Learning](training.md) — Joint training + online learning from real interactions
 - [Live Agent](agent.md) — Running a cortex-net agent with any OpenAI-compatible LLM
 - [Tool System](tools.md) — File access, shell execution, custom tools via function calling
+- [Monitoring](monitoring.md) — Structured interaction logs, what to watch for, analysis
 - [Why This Matters](why.md) — What's broken in today's agents
 - [Implementation Plan](implementation.md) — Phased roadmap with results
 
