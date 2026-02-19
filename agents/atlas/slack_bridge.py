@@ -193,10 +193,12 @@ def run():
 
             # Process in chronological order (API returns newest first)
             for msg in reversed(messages):
-                # Skip bot's own messages
-                if msg.get("user") == BOT_USER_ID:
-                    continue
-                if msg.get("bot_id"):
+                # Skip Atlas's own thread replies (its responses)
+                # but allow top-level messages (could be from OpenClaw or users)
+                if msg.get("user") == BOT_USER_ID and msg.get("thread_ts"):
+                    log.info(f"Skipping own thread reply: {msg['ts']}")
+                    last_ts = msg["ts"]
+                    ts_file.write_text(last_ts)
                     continue
                 # Skip non-text messages
                 text = msg.get("text", "").strip()
