@@ -452,7 +452,24 @@ class CortexAgent:
                 )
                 assistant_text = assistant_text or "(timed out — too many tool calls)"
                 break
-            response = self.client.chat.completions.create(**call_kwargs)
+            try:
+                response = self.client.chat.completions.create(**call_kwargs)
+            except Exception as api_err:
+                if "400" in str(api_err) and "invalid function arguments" in str(api_err):
+                    # MiniMax rejects malformed tool results — strip last tool messages and retry
+                    import logging
+                    logging.getLogger("cortex-agent").warning(f"API rejected tool call, retrying without: {api_err}")
+                    # Remove the last assistant + tool messages
+                    while all_messages and all_messages[-1].get("role") in ("tool",):
+                        all_messages.pop()
+                    if all_messages and hasattr(all_messages[-1], 'tool_calls'):
+                        all_messages.pop()
+                    all_messages.append({"role": "user", "content": "(tool call failed, please respond without tools)"})
+                    call_kwargs["messages"] = all_messages
+                    call_kwargs.pop("tools", None)
+                    response = self.client.chat.completions.create(**call_kwargs)
+                else:
+                    raise
             choice = response.choices[0]
 
             # If no tool calls, we're done
