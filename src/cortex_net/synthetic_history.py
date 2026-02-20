@@ -581,74 +581,131 @@ class HistoryGenerator:
         topic_turns: dict[str, list[str]],
         memorable_events: list[dict],
     ) -> list[GroundTruthQuery]:
-        """Generate benchmark queries with ground truth."""
+        """Generate benchmark queries with content-aligned ground truth.
+
+        Key principle: the query must semantically match the relevant turns.
+        We extract distinctive phrases from actual turn content to build
+        queries that cosine similarity CAN find — then cortex-net's job
+        is to find them better (higher precision, fewer tokens).
+        """
         queries = []
         turn_map = {t.id: t for t in all_turns}
 
-        # Type 1: Topic recall — "What did we discuss about X?"
-        for topic in self.topics:
-            if len(topic_turns[topic.id]) < 4:
-                continue
-            # Pick a few relevant turns as ground truth
-            relevant = self.rng.sample(topic_turns[topic.id], min(5, len(topic_turns[topic.id])))
-            queries.append(GroundTruthQuery(
-                query=f"What have we discussed about {topic.keywords[0]}?",
-                category="topic_recall",
-                relevant_turn_ids=relevant,
-                description=f"Recall discussions about {topic.id}",
-            ))
+        # Type 1: Session-contextual recall — find turns from the same session
+        # The anchor turn is semantically close to the query, but OTHER relevant
+        # turns are from the same session (conversationally related but different words).
+        # This is where cortex-net can beat cosine: session context > keyword match.
+        sessions: dict[str, list[str]] = {}
+        for t in all_turns:
+            sessions.setdefault(t.session_id, []).append(t.id)
 
-        # Type 2: Cross-session recall — finding specific past events
-        for event in memorable_events[:15]:
-            turn = turn_map.get(event["turn_ids"][0])
-            if not turn:
+        for topic in self.topics:
+            tids = topic_turns.get(topic.id, [])
+            if len(tids) < 4:
                 continue
+
+            # Find sessions that contain this topic's turns
+            topic_sessions: dict[str, list[str]] = {}
+            for tid in tids:
+                t = turn_map[tid]
+                topic_sessions.setdefault(t.session_id, []).append(tid)
+
+            for sid, session_tids in topic_sessions.items():
+                if len(session_tids) < 3:
+                    continue
+                # Anchor = first user turn in this session for this topic
+                anchor_tid = session_tids[0]
+                anchor = turn_map.get(anchor_tid)
+                if not anchor or anchor.role != "user":
+                    continue
+
+                # Relevant = ALL turns from this session about this topic
+                # (these share session context but may use different words)
+                relevant = session_tids[:5]
+
+                # Query derived from anchor content
+                content = anchor.content
+                phrases = content.replace("?", ".").replace("!", ".").split(".")
+                phrase = phrases[0].strip() if phrases else content[:80]
+                if len(phrase) < 15:
+                    phrase = content[:80]
+
+                query_text = phrase if "?" in phrase else phrase + "?"
+
+                queries.append(GroundTruthQuery(
+                    query=query_text,
+                    category="topic_recall",
+                    relevant_turn_ids=relevant,
+                    description=f"Find session turns about: {phrase[:60]}",
+                ))
+                if len([q for q in queries if q.category == "topic_recall"]) >= 40:
+                    break
+            if len([q for q in queries if q.category == "topic_recall"]) >= 40:
+                break
+
+        # Type 2: Cross-session recall — use actual turn content as query
+        for event in memorable_events[:15]:
+            anchor_tid = event["turn_ids"][0]
+            anchor = turn_map.get(anchor_tid)
+            if not anchor:
+                continue
+            # Query = paraphrase of the turn content
+            content = anchor.content
+            if "?" in content:
+                query_text = content  # already a question
+            else:
+                words = content.split()[:12]
+                query_text = " ".join(words) + "?"
             queries.append(GroundTruthQuery(
-                query=f"When did we discuss {turn.content[:50].rstrip('?.')}?",
+                query=query_text,
                 category="cross_session",
                 relevant_turn_ids=event["turn_ids"],
                 description=f"Find specific discussion from {event['date']}",
             ))
 
-        # Type 3: Preference recall — "What's my preference for X?"
+        # Type 3: Preference recall — use actual preference content
         pref_turns = topic_turns.get("code_style", []) + topic_turns.get("tool_preferences", [])
         if len(pref_turns) >= 3:
-            for _ in range(5):
-                relevant = self.rng.sample(pref_turns, min(3, len(pref_turns)))
-                turn = turn_map.get(relevant[0])
-                if turn:
-                    queries.append(GroundTruthQuery(
-                        query=f"What are my coding preferences and conventions?",
-                        category="preference_recall",
-                        relevant_turn_ids=relevant,
-                        description="Recall accumulated user preferences",
-                    ))
-                    break  # one preference query is enough
+            relevant = self.rng.sample(pref_turns, min(5, len(pref_turns)))
+            anchor = turn_map.get(relevant[0])
+            if anchor:
+                phrase = anchor.content.split(".")[0].strip()[:80]
+                queries.append(GroundTruthQuery(
+                    query=f"{phrase}?",
+                    category="preference_recall",
+                    relevant_turn_ids=relevant,
+                    description="Recall coding preferences",
+                ))
 
-        # Type 4: Failure pattern — "Have we seen this error before?"
+        # Type 4: Failure pattern — use actual error content
         bug_turns = topic_turns.get("bug_investigation", [])
         if len(bug_turns) >= 4:
-            for error in ERRORS[:3]:
+            for error in ERRORS[:5]:
+                # Find turns that actually mention this error
                 relevant = [tid for tid in bug_turns
                             if error.lower() in turn_map.get(tid, Turn("","","",0,"","","",0)).content.lower()]
-                if not relevant:
-                    relevant = self.rng.sample(bug_turns, min(3, len(bug_turns)))
+                if len(relevant) < 2:
+                    continue
                 queries.append(GroundTruthQuery(
-                    query=f"Have we encountered {error} before? What was the fix?",
+                    query=f"How did we fix the {error}?",
                     category="failure_pattern",
                     relevant_turn_ids=relevant[:5],
                     description=f"Recall past debugging of {error}",
                 ))
 
-        # Type 5: Decision recall — "Why did we choose X over Y?"
+        # Type 5: Decision recall — use actual architecture content
         arch_turns = topic_turns.get("system_design", []) + topic_turns.get("api_auth", [])
         if len(arch_turns) >= 3:
-            relevant = self.rng.sample(arch_turns, min(4, len(arch_turns)))
-            queries.append(GroundTruthQuery(
-                query="What architectural decisions have we made and why?",
-                category="decision_recall",
-                relevant_turn_ids=relevant,
-                description="Recall architecture decisions with rationale",
-            ))
+            for _ in range(min(3, len(arch_turns) // 3)):
+                relevant = self.rng.sample(arch_turns, min(4, len(arch_turns)))
+                anchor = turn_map.get(relevant[0])
+                if anchor:
+                    phrase = anchor.content.split(".")[0].strip()[:80]
+                    queries.append(GroundTruthQuery(
+                        query=f"{phrase}?",
+                        category="decision_recall",
+                        relevant_turn_ids=relevant,
+                        description="Recall architecture decision",
+                    ))
 
         return queries

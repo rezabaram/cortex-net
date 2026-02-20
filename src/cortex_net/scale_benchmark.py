@@ -548,11 +548,10 @@ class SyntheticTrainer:
         """Train on ground truth queries. Returns loss history."""
         rng = random.Random(seed)
 
-        # Pre-embed all user turns
-        user_turns = [t for t in history.turns if t.role == "user"]
-        turn_texts = [t.content for t in user_turns]
-        turn_ids = [t.id for t in user_turns]
-        turn_id_set = set(turn_ids)
+        # Pre-embed all turns (matching benchmark eval)
+        all_turns = history.turns
+        turn_texts = [t.content for t in all_turns]
+        turn_ids = [t.id for t in all_turns]
 
         embeddings = self.text_encoder.encode(
             turn_texts, convert_to_tensor=True, show_progress_bar=False
