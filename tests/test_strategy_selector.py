@@ -155,8 +155,8 @@ class TestIntegration:
         from cortex_net.situation_encoder import SituationEncoder, extract_metadata_features
 
         encoder = SituationEncoder(text_dim=32, output_dim=64, hidden_dim=128)
-        selector = StrategySelector(situation_dim=64, num_strategies=10)
         registry = StrategyRegistry()
+        selector = StrategySelector(situation_dim=64, num_strategies=len(registry))
 
         # Encode a situation
         msg = torch.randn(32)

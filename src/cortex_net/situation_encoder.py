@@ -136,6 +136,17 @@ class SituationEncoder(nn.Module):
         # Initialize final layer smaller for stable training
         nn.init.xavier_uniform_(self.encoder[-1].weight, gain=0.1)
 
+        # Residual gate: untrained → output ≈ message_emb (cosine baseline)
+        # sigmoid(-5) ≈ 0.007, so encoder contribution starts near zero
+        self._residual_gate = nn.Parameter(torch.tensor(-5.0))
+
+        # Project message_emb to output_dim if they differ
+        if text_dim != output_dim:
+            self._residual_proj = nn.Linear(text_dim, output_dim, bias=False)
+            nn.init.eye_(self._residual_proj.weight[:min(text_dim, output_dim), :min(text_dim, output_dim)])
+        else:
+            self._residual_proj = None
+
     def forward(
         self,
         message_emb: torch.Tensor,
@@ -164,7 +175,14 @@ class SituationEncoder(nn.Module):
         x = torch.cat([message_emb, history_emb, metadata_features], dim=-1)
 
         # Encode
-        out = self.encoder(x)
+        encoded = self.encoder(x)
+
+        # Residual connection from message_emb (cosine baseline passthrough)
+        residual = message_emb.clone()
+        if self._residual_proj is not None:
+            residual = self._residual_proj(residual)
+        gate = torch.sigmoid(self._residual_gate)
+        out = gate * encoded + (1 - gate) * residual
 
         # L2 normalize for stable downstream scoring
         out = F.normalize(out, dim=-1)
